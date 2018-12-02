@@ -5,197 +5,6 @@ import styles from '../../../style/AllLotShow.sass'
 // import '../../../style/AllLotShow.sass'
 
 const pageDataItemsNum = 15
-const testData = [
-  {
-    time: "2018.10.11",
-    title: "包邮大闸蟹",
-    category: "食品",
-    owner: "红红",
-    itemId: "1",
-  },
-  {
-    time: "2018.10.12",
-    title: "包邮大闸蟹",
-    category: "食品",
-    owner: "红红",
-    itemId: "2"
-  },
-  {
-    time: "2018.10.13",
-    title: "包邮大闸蟹",
-    category: "食品",
-    owner: "红红",
-    itemId: "3"
-  },
-  {
-    time: "2018.10.14",
-    title: "包邮大闸蟹",
-    category: "食品",
-    owner: "红红",
-    itemId: "4"
-
-  },
-  {
-    time: "2018.10.15",
-    title: "包邮大闸蟹",
-    category: "食品",
-    owner: "红红",
-    itemId: "5"
-
-  },
-  {
-    time: "2018.10.16",
-    title: "包邮大闸蟹",
-    category: "食品",
-    owner: "红红",
-    itemId: "6"
-
-  },
-  {
-    time: "2018.10.17",
-    title: "包邮大闸蟹",
-    category: "食品",
-    owner: "红红",
-    itemId: "2"
-
-  },
-  {
-    time: "2018.10.18",
-    title: "包邮大闸蟹",
-    category: "食品",
-    owner: "红红",
-    itemId: "2"
-
-  },
-  {
-    time: "2018.10.19",
-    title: "包邮大闸蟹",
-    category: "食品",
-    owner: "红红",
-    itemId: "2"
-  },
-  {
-    time: "2018.10.20",
-    title: "包邮大闸蟹",
-    category: "食品",
-    owner: "红红",
-    itemId: "2"
-
-  },
-  {
-    time: "2018.10.21",
-    title: "包邮大闸蟹",
-    category: "食品",
-    owner: "红红",
-    itemId: "2"
-
-  },
-  {
-    time: "2018.10.22",
-    title: "包邮大闸蟹",
-    category: "食品",
-    owner: "红红",
-    itemId: "2"
-
-  },
-  {
-    time: "2018.20.11",
-    title: "包邮大闸蟹",
-    category: "食品",
-    owner: "红红",
-    itemId: "2"
-
-  },
-  {
-    time: "2018.20.12",
-    title: "包邮大闸蟹",
-    category: "食品",
-    owner: "红红",
-    itemId: "2"
-
-  },
-  {
-    time: "2018.20.13",
-    title: "包邮大闸蟹",
-    category: "食品",
-    owner: "红红",
-    itemId: "2"
-
-  },
-  {
-    time: "2018.20.14",
-    title: "包邮大闸蟹",
-    category: "食品",
-    owner: "红红",
-    itemId: "2"
-
-  },
-  {
-    time: "2018.20.15",
-    title: "包邮大闸蟹",
-    category: "食品",
-    owner: "红红",
-    itemId: "2"
-
-  },
-  {
-    time: "2018.20.16",
-    title: "包邮大闸蟹",
-    category: "食品",
-    owner: "红红",
-    itemId: "2"
-
-  },
-  {
-    time: "2018.20.17",
-    title: "包邮大闸蟹",
-    category: "食品",
-    owner: "红红",
-    itemId: "2"
-
-  },
-  {
-    time: "2018.20.18",
-    title: "包邮大闸蟹",
-    category: "食品",
-    owner: "红红",
-    itemId: "2"
-
-  },
-  {
-    time: "2018.20.19",
-    title: "包邮大闸蟹",
-    category: "食品",
-    owner: "红红",
-    itemId: "2"
-
-  },
-  {
-    time: "2018.20.20",
-    title: "包邮大闸蟹",
-    category: "食品",
-    owner: "红红",
-    itemId: "2"
-
-  },
-  {
-    time: "2018.20.21",
-    title: "包邮大闸蟹",
-    category: "食品",
-    owner: "红红",
-    itemId: "2"
-
-  },
-  {
-    time: "2018.20.22",
-    title: "包邮大闸蟹",
-    category: "食品",
-    owner: "红红",
-    itemId: "2"
-
-  },
-]
-
 
 import moment from 'moment';
 import 'moment/locale/zh-cn';
@@ -211,10 +20,16 @@ import gql from 'graphql-tag'
 
 const data = gql`
   query {
-    ReturnAllThings {
+    ReturnWaitingForFirstCheckItems {
       _id
       title
       description
+      lastStatusChangeTime
+      categoryId
+      owner {
+        _id
+        phoneNumber
+      }
     }
   }
 `
@@ -234,17 +49,6 @@ const data = gql`
 //   }
 // `
 
-const QueryItemsWithStatus = gql`
-query {
-  ReturnItemsWithStatus(status: 2) {
-    _id
-    title
-  }
-}
-
-`
-
-
 
 class AllLotShow extends React.Component {
   constructor(props) {
@@ -254,11 +58,10 @@ class AllLotShow extends React.Component {
     this.transferItemId = this.transferItemId.bind(this)
     this.clearItemId = this.clearItemId.bind(this)
     this.state = {
-      // this.props.data.ReturnAllThings.length / pageDataItemsNum: this.props.data.ReturnAllThings.length / pageDataItemsNum,
+      // this.props.data.ReturnWaitingForFirstCheckItems.length / pageDataItemsNum: this.props.data.ReturnWaitingForFirstCheckItems.length / pageDataItemsNum,
       returnEle: [],
       progressTips: "->拍品详情",
-      currentItemId: "",
-      currentItemInfo: null
+      currentItemId: "",   // 会根据itemID重新query
     }
   }
 
@@ -281,45 +84,31 @@ class AllLotShow extends React.Component {
       return <p>{error.message}</p>;
     }
     const returnEle = []
-    const firstRenderNum = (this.props.data.ReturnAllThings.length < pageDataItemsNum) ? this.props.data.ReturnAllThings.length : pageDataItemsNum
-
-    for (let i = 0, len = firstRenderNumw; i < len; i++) {
-      returnEle.push(
-        <DisplayItem transferItemId={this.transferItemId.bind(this, this.props.data.ReturnAllThings[i]._id)}
-          key={this.props.data.ReturnAllThings[i]._id}
-          info={this.props.data.ReturnAllThings[i]} />)
-      // itemId={this.props.data.ReturnAllThings[i]._id} />)
+    const firstRenderNum = (this.props.data.ReturnWaitingForFirstCheckItems.length < pageDataItemsNum) ? this.props.data.ReturnWaitingForFirstCheckItems.length : pageDataItemsNum
+    if (firstRenderNum === 0) {
+      this.setState({
+        returnEle: "没有需要审核的拍品"
+      })
+    } else {
+      for (let i = 0, len = firstRenderNum; i < len; i++) {
+        returnEle.push(
+          <DisplayItem transferItemId={this.transferItemId.bind(this, this.props.data.ReturnWaitingForFirstCheckItems[i]._id)}
+            key={this.props.data.ReturnWaitingForFirstCheckItems[i]._id}
+            info={this.props.data.ReturnWaitingForFirstCheckItems[i]} />)
+        // itemId={this.props.data.ReturnWaitingForFirstCheckItems[i]._id} />)
+      }
+      this.setState({
+        returnEle: returnEle
+      })
     }
-    this.setState({
-      returnEle: returnEle
-    })
   }
   transferItemId(itemId) {
 
     console.log(itemId)
     // 通过 itemID 获取该产品的信息
     // 目前应当是需要
-    const info = {
-      ownerInfo: {
-        phoneNumber: 13524452340,
-        nickName: 'wwh',
-      },
-      itemInfo: {
-        photos: [],
-        title: '包邮大闸蟹嘤嘤嘤我真的真的好想吃啊',
-        description: '就是红红超级想吃的包邮大闸蟹！',
-        createTime: '2018-10-11',
-        expireTime: '2018-11-11',
-        noBarginPrice: 134,
-        startingPrice: 13,
-        newDegree: '9',
-        certPhotos: [],
-        status: '',
-      }
-    }
     this.setState({
       currentItemId: itemId,
-      currentItemInfo: info
     })
   }
   changePageClick(page, pageSize) {
@@ -332,21 +121,21 @@ class AllLotShow extends React.Component {
 
     console.log(page, pageSize)
     const returnEle = []
-    // if ((this.props.data.ReturnAllThings.length < page * pageSize)) {
+    // if ((this.props.data.ReturnWaitingForFirstCheckItems.length < page * pageSize)) {
     //   console.log(true)
     // }
-    // let len = (this.props.data.ReturnAllThings.length < page * pageSize) ? this.props.data.ReturnAllThings.length % pageSize : pageSize
+    // let len = (this.props.data.ReturnWaitingForFirstCheckItems.length < page * pageSize) ? this.props.data.ReturnWaitingForFirstCheckItems.length % pageSize : pageSize
     // console.log(len)
-    for (let i = 0, len = (this.props.data.ReturnAllThings.length < page * pageSize) ? this.props.data.ReturnAllThings.length % pageSize : pageSize; i < len; i++) {
+    for (let i = 0, len = (this.props.data.ReturnWaitingForFirstCheckItems.length < page * pageSize) ? this.props.data.ReturnWaitingForFirstCheckItems.length % pageSize : pageSize; i < len; i++) {
       console.log(len)
 
       returnEle.push(
-        <DisplayItem transferItemId={this.transferItemId.bind(this, this.props.data.ReturnAllThings[i + (page - 1) * pageSize]._id)}
-          key={this.props.data.ReturnAllThings[i + (page - 1) * pageSize]._id}
-          // itemId={this.props.data.ReturnAllThings[i + (page - 1) * pageSize]._id}
+        <DisplayItem transferItemId={this.transferItemId.bind(this, this.props.data.ReturnWaitingForFirstCheckItems[i + (page - 1) * pageSize]._id)}
+          key={this.props.data.ReturnWaitingForFirstCheckItems[i + (page - 1) * pageSize]._id}
+          // itemId={this.props.data.ReturnWaitingForFirstCheckItems[i + (page - 1) * pageSize]._id}
 
-          info={this.props.data.ReturnAllThings[i + (page - 1) * pageSize]}
-        // info={this.props.data.ReturnAllThings[i + (page - 1) * pageSize]}
+          info={this.props.data.ReturnWaitingForFirstCheckItems[i + (page - 1) * pageSize]}
+        // info={this.props.data.ReturnWaitingForFirstCheckItems[i + (page - 1) * pageSize]}
 
         />)
     }
@@ -410,7 +199,7 @@ class AllLotShow extends React.Component {
                   {this.state.returnEle}
                 </div>
               </div>
-              <Pagination total={50} onChange={this.changePageClick} hideOnSinglePage={true} total={this.props.data.ReturnAllThings.length} pageSize={pageDataItemsNum} defaultCurrent={this.props.data.ReturnAllThings.length / pageDataItemsNum} current={this.props.data.ReturnAllThings.length / pageDataItemsNum} />
+              <Pagination total={50} onChange={this.changePageClick} hideOnSinglePage={true} total={this.props.data.ReturnWaitingForFirstCheckItems.length} pageSize={pageDataItemsNum} defaultCurrent={this.props.data.ReturnWaitingForFirstCheckItems.length / pageDataItemsNum} current={this.props.data.ReturnWaitingForFirstCheckItems.length / pageDataItemsNum} />
             </div>
           )
         }

@@ -16,6 +16,7 @@
     "apollo-link-http": "^1.5.7",
     "autoprefixer": "^9.3.1",
     "babel-core": "^6.26.3",
+    "date-and-time": "^0.6.3",
     "graphql": "^14.0.2",
     "graphql-tag": "^2.10.0",
     "graphql-tools": "^4.0.3",
