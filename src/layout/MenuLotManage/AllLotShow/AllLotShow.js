@@ -1,110 +1,94 @@
 import React from 'react'
-
-
+import { DatePicker, Input, Select, Button, Icon, Pagination } from 'antd'
+import { graphql, Query } from 'react-apollo'
+import gql from 'graphql-tag'
+import { showCategoryAccordingNum, showChineseStatusAccordingString } from '../../../utils/commonChange'
 import styles from '../../../style/AllLotShow.sass'
-// import '../../../style/AllLotShow.sass'
-
-const pageDataItemsNum = 15
+import { ApolloConsumer } from 'react-apollo'
+import 'babel-polyfill';
 
 import moment from 'moment';
 import 'moment/locale/zh-cn';
 moment.locale('zh-cn');
 
-import DisplayItem from './DisplayItem'
-import DetailedItem from './DetailedItem'
+import date from 'date-and-time'
+import DetailedItem from '../AllLotShow/DetailedItem'
+import DisplayItem from '../AllLotShow/DisplayItem'
+const pageDataItemsNum = 15
 
-import { DatePicker, Input, Select, Button, Icon, Pagination } from 'antd'
-import { graphql } from 'react-apollo'
-import { Mutation } from 'react-apollo'
-import gql from 'graphql-tag'
-
-const data = gql`
+// const RGBType = new GraphQLEnumType({
+//   name: 'AuctionStatus',
+//   values: {
+//     InFirstCheck: { value: 0 },
+//   }
+// })
+const getWaitingFirstCheckItemData = gql`
   query {
-    ReturnWaitingForFirstCheckItems {
-      _id
+    auctionItems (
+      where: {
+        status: InFirstCheck
+      }
+    ){
+      id
       title
       description
-      lastStatusChangeTime
-      categoryId
-      owner {
-        _id
+      status
+      photos
+      seller {
+        id
         phoneNumber
       }
+      category {
+        id
+        title
+      }
+      createTime
+      lastStatusChangeTime
     }
   }
 `
-
-// const oneItemData = gql`
-//   query QUERY_ONE_ITEM($itemId: ObjectId!) {
-//     ReturnOneItem(_id: $itemId) {
-//       _id
+// const getWaitingFirstCheckItemData = gql`
+//   query auctionItems($status: Number!){
+//     auctionItems(status: $status) {
+//       id
 //       title
 //       description
+//       status
+//       categoryId
+//       lastStatusChangeTime
+//       seller {
+//         id
+//         phoneNumber
+//       }
 //     }
 //   }
 // `
-// const changeStatusMutation = gql`
-//   mutation {
-//     changeAuctionStatus(newStatus: 9, itemId: "5c02cd1f5b120f1a382e6336") 
-//   }
-// `
-
-
-class AllLotShow extends React.Component {
+class tradeResult extends React.Component {
   constructor(props) {
     super(props)
-    this.test = this.test.bind(this)
+    this.state = {
+      allItems: null,
+      displayItems: null,
+      currentItemId: "",
+      progressTips: "->拍品详情",
+      returnEle: [],
+    }
     this.changePageClick = this.changePageClick.bind(this)
     this.transferItemId = this.transferItemId.bind(this)
     this.clearItemId = this.clearItemId.bind(this)
-    this.state = {
-      // this.props.data.ReturnWaitingForFirstCheckItems.length / pageDataItemsNum: this.props.data.ReturnWaitingForFirstCheckItems.length / pageDataItemsNum,
-      returnEle: [],
-      progressTips: "->拍品详情",
-      currentItemId: "",   // 会根据itemID重新query
-    }
+    this.getAllItems = this.getAllItems.bind(this)
   }
 
-  test(a, b) {
-    // function(date: moment, dateString: string)
-    // console.log(a)
-    // console.log(b)
-    console.log('hello')
-  }
-  clearItemId() {
+  async clearItemId() {
     this.setState({
       currentItemId: ""
     })
+
   }
-  componentWillMount() {
-    if (this.props.data.loading) {
-      return <p>Loading ...</p>;
-    }
-    if (this.props.data.error) {
-      return <p>{error.message}</p>;
-    }
-    const returnEle = []
-    const firstRenderNum = (this.props.data.ReturnWaitingForFirstCheckItems.length < pageDataItemsNum) ? this.props.data.ReturnWaitingForFirstCheckItems.length : pageDataItemsNum
-    if (firstRenderNum === 0) {
-      this.setState({
-        returnEle: "没有需要审核的拍品"
-      })
-    } else {
-      for (let i = 0, len = firstRenderNum; i < len; i++) {
-        returnEle.push(
-          <DisplayItem transferItemId={this.transferItemId.bind(this, this.props.data.ReturnWaitingForFirstCheckItems[i]._id)}
-            key={this.props.data.ReturnWaitingForFirstCheckItems[i]._id}
-            info={this.props.data.ReturnWaitingForFirstCheckItems[i]} />)
-        // itemId={this.props.data.ReturnWaitingForFirstCheckItems[i]._id} />)
-      }
-      this.setState({
-        returnEle: returnEle
-      })
-    }
-  }
+
   transferItemId(itemId) {
 
-    console.log(itemId)
+    console.log('transferItemId' + itemId)
     // 通过 itemID 获取该产品的信息
     // 目前应当是需要
     this.setState({
@@ -112,31 +96,16 @@ class AllLotShow extends React.Component {
     })
   }
   changePageClick(page, pageSize) {
-    if (this.props.data.loading) {
-      return <p>Loading ...</p>;
-    }
-    if (this.props.data.error) {
-      return <p>{error.message}</p>;
-    }
-
     console.log(page, pageSize)
     const returnEle = []
-    // if ((this.props.data.ReturnWaitingForFirstCheckItems.length < page * pageSize)) {
-    //   console.log(true)
-    // }
-    // let len = (this.props.data.ReturnWaitingForFirstCheckItems.length < page * pageSize) ? this.props.data.ReturnWaitingForFirstCheckItems.length % pageSize : pageSize
-    // console.log(len)
-    for (let i = 0, len = (this.props.data.ReturnWaitingForFirstCheckItems.length < page * pageSize) ? this.props.data.ReturnWaitingForFirstCheckItems.length % pageSize : pageSize; i < len; i++) {
+
+    for (let i = 0, len = (this.state.displayItems.length < page * pageSize) ? this.state.displayItems.length % pageSize : pageSize; i < len; i++) {
       console.log(len)
-
       returnEle.push(
-        <DisplayItem transferItemId={this.transferItemId.bind(this, this.props.data.ReturnWaitingForFirstCheckItems[i + (page - 1) * pageSize]._id)}
-          key={this.props.data.ReturnWaitingForFirstCheckItems[i + (page - 1) * pageSize]._id}
-          // itemId={this.props.data.ReturnWaitingForFirstCheckItems[i + (page - 1) * pageSize]._id}
-
-          info={this.props.data.ReturnWaitingForFirstCheckItems[i + (page - 1) * pageSize]}
-        // info={this.props.data.ReturnWaitingForFirstCheckItems[i + (page - 1) * pageSize]}
-
+        <DisplayItem transferItemId={this.transferItemId.bind(this, this.state.displayItems[i + (page - 1) * pageSize].id)}
+          key={this.state.displayItems[i + (page - 1) * pageSize].id}
+          statusToShow={date.format(new Date(this.state.displayItems[i + (page - 1) * pageSize].lastStatusChangeTime), 'YYYY年MM月DD日 HH:mm')}
+          info={this.state.displayItems[i + (page - 1) * pageSize]}
         />)
     }
     console.log(returnEle)
@@ -144,69 +113,130 @@ class AllLotShow extends React.Component {
       returnEle: returnEle
     })
   }
+  // 点击获取所有内容按钮触发：
+  getAllItems(allItems) {
+    this.setState({
+      allItems: allItems,
+      displayItems: allItems
+    })
+    const returnEle = []
+    const firstRenderNum = (this.state.displayItems.length < pageDataItemsNum) ? this.state.displayItems.length : pageDataItemsNum
+    if (firstRenderNum === 0) {
+      console.log("ddd")
+      this.setState({
+        returnEle: "没有需要审核的拍品"
+      })
+    } else {
+      console.log("setState")
+      for (let i = 0, len = firstRenderNum; i < len; i++) {
+        returnEle.push(
+          <DisplayItem transferItemId={this.transferItemId.bind(this, this.state.displayItems[i].id)}
+            key={this.state.displayItems[i].id}
+            statusToShow={date.format(new Date(this.state.displayItems[i].lastStatusChangeTime), 'YYYY年MM月DD日 HH:mm')}
+            info={this.state.displayItems[i]} />)
+      }
+      this.setState({
+        returnEle: returnEle
+      })
+    }
+    // const firstRenderNum = (this.state.displayItems.length < pageDataItemsNum) ? this.state.displayItems.length : pageDataItemsNum
+    // if (firstRenderNum === 0) {
+    //   returnEle = "没有需要审核的拍品"
+    // } else {
+    //   for (let i = 0, len = firstRenderNum; i < len; i++) {
+    //     returnEle.push(
+    //       <DisplayItem transferItemId={this.transferItemId.bind(this, this.state.displayItems[i].id)}
+    //         key={this.state.displayItems[i].id}
+    //         statusToShow="hello"
+    //         info={this.state.displayItems[i]} />)
+    //   }
+    // }
+  }
+
+
+
   render() {
-    if (this.props.data.loading) {
-      return <p>Loading ...</p>;
-    }
-    if (this.props.data.error) {
-      return <p>{error.message}</p>;
-    }
-    return (
-      <div>
-        {this.state.currentItemId.length > 0 ?
-          (
-            <div>
-              <p><span style={{ textDecoration: 'underline' }} onClick={this.clearItemId}>拍品提报审核</span>->拍品详情</p>
-              <div className={styles["result-ctn"]}>
+    if (this.state.displayItems && this.state.currentItemId.length <= 0) {
+      return (
+        <div>
+          <p>拍品提报审核</p>
+          <div className={styles['search-bar']}>
+            <div className={styles['search-detail']}>
+              <span className={styles['item-title']}>卖家号码</span>
+              <div className={styles['search-item-ctn']}>
+                <Input size="default"></Input>
+              </div>
+              <span className={styles['item-title']}>拍品名称</span>
+              <div className={styles['search-item-ctn']}>
+                <Input size="default"></Input>
+              </div>
+              <span className={styles['item-title']}>类别</span>
+              <div className={styles['search-category-ctn']}>
+                <Select size="default" defaultActiveFirstOption={true} defaultValue="字画">
+                  <Option value="painting">字画</Option>
+                  <Option value="oldthings">古董</Option>
+                  <Option value="rich">奢侈品</Option>
+                  <Option value="food">食品</Option>
+                </Select>
+              </div>
+              <span className={styles['item-title']}>提报时间</span>
+              <div className={styles['search-item-ctn']}>
+                <DatePicker className={styles['search-date']} defaultValue={moment('2018-11-01', 'YYYY-MM-DD')} showToday={true} onChange={this.test} />
+              </div>
+              <Button onClick={this.getSearchResult}><Icon type="search"></Icon>搜索</Button>
+            </div>
+          </div>
+          <div className={styles["result-ctn"]}>
+            <div className={styles["result-ctn-flex"]}>
+              {this.state.returnEle}
+            </div>
+          </div>
+          <Pagination total={50} onChange={this.changePageClick} hideOnSinglePage={true} total={this.state.displayItems.length} pageSize={pageDataItemsNum} defaultCurrent={this.state.displayItems.length / pageDataItemsNum} current={this.state.displayItems.length / pageDataItemsNum} />
+        </div>
 
+      )
+    } else if (this.state.displayItems && this.state.currentItemId.length > 0) {  // 展示具体物品信息
+      return (
+        <ApolloConsumer>
+          {client => (
+            <div>
+              <p><span style={{ textDecoration: 'underline' }}
+                onClick={async () => {
+                  const { data } = await client.query({
+                    query: getWaitingFirstCheckItemData,
+                  })
+                  console.log(data.auctionItems)
+                  this.getAllItems(data.auctionItems)
+                  this.clearItemId()
+                }}>拍品提报审核</span>->拍品详情</p>
+              <div className={styles["result-ctn"]}>
                 <div className={styles["result-ctn-flex"]}>
-                  <DetailedItem _id={this.state.currentItemId} />
+                  <DetailedItem id={this.state.currentItemId} />
                 </div>
               </div>
             </div>
-
-          ) : (
+          )}
+        </ApolloConsumer>
+      )
+    } else {
+      return (
+        <ApolloConsumer>
+          {client => (
             <div>
-              <p>拍品提报审核</p>
-              <div className={styles['search-bar']}>
-                <div className={styles['search-detail']}>
-                  <span className={styles['item-title']}>卖家号码</span>
-                  <div className={styles['search-item-ctn']}>
-                    <Input size="default"></Input>
-                  </div>
-                  <span className={styles['item-title']}>拍品名称</span>
-                  <div className={styles['search-item-ctn']}>
-                    <Input size="default"></Input>
-                  </div>
-                  <span className={styles['item-title']}>类别</span>
-                  <div className={styles['search-category-ctn']}>
-                    <Select size="default" defaultActiveFirstOption={true} defaultValue="字画">
-                      <Option value="painting">字画</Option>
-                      <Option value="oldthings">古董</Option>
-                      <Option value="rich">奢侈品</Option>
-                      <Option value="food">食品</Option>
-                    </Select>
-                  </div>
-                  <span className={styles['item-title']}>提报时间</span>
-                  <div className={styles['search-item-ctn']}>
-                    <DatePicker className={styles['search-date']} defaultValue={moment('2018-11-01', 'YYYY-MM-DD')} showToday={true} onChange={this.test} />
-                  </div>
-                  <Button><Icon type="search"></Icon>搜索</Button>
-                </div>
-              </div>
-              <div className={styles["result-ctn"]}>
-                <div className={styles["result-ctn-flex"]}>
-                  {this.state.returnEle}
-                </div>
-              </div>
-              <Pagination total={50} onChange={this.changePageClick} hideOnSinglePage={true} total={this.props.data.ReturnWaitingForFirstCheckItems.length} pageSize={pageDataItemsNum} defaultCurrent={this.props.data.ReturnWaitingForFirstCheckItems.length / pageDataItemsNum} current={this.props.data.ReturnWaitingForFirstCheckItems.length / pageDataItemsNum} />
-            </div>
-          )
-        }
-      </div >
+              <button onClick={async () => {
+                const { data } = await client.query({
+                  query: getWaitingFirstCheckItemData,
+                })
+                this.getAllItems(data.auctionItems)
+              }}>点击获取内容</button>
 
-    )
+            </div>
+          )}
+
+        </ApolloConsumer>
+      )
+    }
   }
 }
 
-export default graphql(data)(AllLotShow)
+export default tradeResult

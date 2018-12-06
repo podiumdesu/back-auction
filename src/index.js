@@ -41,7 +41,7 @@ const errorLink = onError(({ graphQLErrors }) => {
 
 const client = new ApolloClient({
   link: ApolloLink.from([errorLink, new HttpLink({
-    uri: `http://localhost:4000/graphql`
+    uri: `http://parities.farawaaay.com:4466`
   })]),
   cache: new InMemoryCache()
 })
