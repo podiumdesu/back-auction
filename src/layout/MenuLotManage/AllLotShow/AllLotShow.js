@@ -2,7 +2,7 @@ import React from 'react'
 import { DatePicker, Input, Select, Button, Icon, Pagination } from 'antd'
 import { graphql, Query } from 'react-apollo'
 import gql from 'graphql-tag'
-import { showCategoryAccordingNum, showChineseStatusAccordingString } from '../../../utils/commonChange'
+import { getStatusColor } from '../../../utils/commonChange'
 import styles from '../../../style/AllLotShow.sass'
 import { ApolloConsumer } from 'react-apollo'
 import 'babel-polyfill';
@@ -105,6 +105,7 @@ class tradeResult extends React.Component {
         <DisplayItem transferItemId={this.transferItemId.bind(this, this.state.displayItems[i + (page - 1) * pageSize].id)}
           key={this.state.displayItems[i + (page - 1) * pageSize].id}
           statusToShow={date.format(new Date(this.state.displayItems[i + (page - 1) * pageSize].lastStatusChangeTime), 'YYYY年MM月DD日 HH:mm')}
+          statusColor={getStatusColor(this.state.displayItems[i + (page - 1) * pageSize].status)}
           info={this.state.displayItems[i + (page - 1) * pageSize]}
         />)
     }
@@ -127,12 +128,15 @@ class tradeResult extends React.Component {
         returnEle: "没有需要审核的拍品"
       })
     } else {
-      console.log("setState")
+
       for (let i = 0, len = firstRenderNum; i < len; i++) {
+        console.log('color' + getStatusColor(this.state.displayItems[i].status))
+        console.log('status' + this.state.displayItems[i].status)
         returnEle.push(
           <DisplayItem transferItemId={this.transferItemId.bind(this, this.state.displayItems[i].id)}
             key={this.state.displayItems[i].id}
             statusToShow={date.format(new Date(this.state.displayItems[i].lastStatusChangeTime), 'YYYY年MM月DD日 HH:mm')}
+            statusColor={getStatusColor(this.state.displayItems[i].status)}
             info={this.state.displayItems[i]} />)
       }
       this.setState({
@@ -159,7 +163,6 @@ class tradeResult extends React.Component {
     if (this.state.displayItems && this.state.currentItemId.length <= 0) {
       return (
         <div>
-          <p>拍品提报审核</p>
           <div className={styles['search-bar']}>
             <div className={styles['search-detail']}>
               <span className={styles['item-title']}>卖家号码</span>
@@ -200,7 +203,7 @@ class tradeResult extends React.Component {
         <ApolloConsumer>
           {client => (
             <div>
-              <p><span style={{ textDecoration: 'underline' }}
+              <p className={styles["return-text"]}><span style={{ textDecoration: 'underline' }}
                 onClick={async () => {
                   const { data } = await client.query({
                     query: getWaitingFirstCheckItemData,

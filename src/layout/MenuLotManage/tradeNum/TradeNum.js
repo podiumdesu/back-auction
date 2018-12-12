@@ -84,8 +84,6 @@ const tradeNum = () => (
       // }
       return (
         <div>
-
-
           <div className={styles['page-container']}>
             <div className={styles['container']}>
               <h3 className={styles['title']}>展示状态统计</h3>

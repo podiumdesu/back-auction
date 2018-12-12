@@ -1,6 +1,8 @@
 .search-bar
   display: block
-  
+  padding-left: 20px
+  margin-top: 20px
+  margin-bottom: 10px
 .search-detail
   display: flex
   width: 100%
@@ -22,13 +24,15 @@
   display: flex
   justify-content: center
   align-items: center
+  height: 650px
 
 .result-ctn-flex
-  height: 550px
+  height: 650px
+  min-width: 1000px
   width: 100%
   overflow: scroll
   display: flex
-  padding: 10px
+  padding: 0 10px 10px 10px
   justify-content: flex-start
   align-content: flex-start
   flex-wrap: wrap
@@ -48,15 +52,7 @@
     box-shadow: 1px 1px solid black
 
 .item-issue-time
-    background-color: black
-    color: white
-    line-height: 16px
-    font-size: 10px
-    margin: 0
-    position: absolute
-    bottom: 0
-    width: 100%
-    text-align: center
+
 
 .item-text-info-ctn
   position: absolute
@@ -84,3 +80,8 @@
   margin-right: 5px
   font-weight: 600
 
+.return-text // 拍品提报审核->拍品详情
+  margin: 15px 0 0 20px
+  font-size: 15px
+  font-weight: 400
+  letter-spacing: 1px

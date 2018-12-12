@@ -2,7 +2,7 @@ import React from 'react'
 import { DatePicker, Input, Select, Button, Icon, Pagination } from 'antd'
 import { graphql, Query } from 'react-apollo'
 import gql from 'graphql-tag'
-import { showChineseStatusAccordingString } from '../../../utils/commonChange'
+import { showChineseStatusAccordingString, getStatusColor } from '../../../utils/commonChange'
 import styles from '../../../style/AllLotShow.sass'
 import { ApolloConsumer } from 'react-apollo'
 import 'babel-polyfill';
@@ -12,7 +12,7 @@ import 'moment/locale/zh-cn';
 moment.locale('zh-cn');
 
 import date from 'date-and-time'
-import DetailedItem from '../AllLotShow/DetailedItem'
+import DetailedItem from './DetailedItem'
 import DisplayItem from '../AllLotShow/DisplayItem'
 const pageDataItemsNum = 15
 
@@ -111,6 +111,8 @@ class tradeResult extends React.Component {
         <DisplayItem transferItemId={this.transferItemId.bind(this, this.state.displayItems[i + (page - 1) * pageSize].id)}
           key={this.state.displayItems[i + (page - 1) * pageSize].id}
           statusToShow={showChineseStatusAccordingString(this.state.displayItems[i + (page - 1) * pageSize].status)}
+          statusColor={getStatusColor(this.state.displayItems[i + (page - 1) * pageSize].status)}
+
           info={this.state.displayItems[i + (page - 1) * pageSize]}
         />)
     }
@@ -139,6 +141,8 @@ class tradeResult extends React.Component {
           <DisplayItem transferItemId={this.transferItemId.bind(this, this.state.displayItems[i].id)}
             key={this.state.displayItems[i].id}
             statusToShow={showChineseStatusAccordingString(this.state.displayItems[i].status)}
+            statusColor={getStatusColor(this.state.displayItems[i].status)}
+
             info={this.state.displayItems[i]} />)
       }
       this.setState({
@@ -153,7 +157,6 @@ class tradeResult extends React.Component {
     if (this.state.displayItems && this.state.currentItemId.length <= 0) {
       return (
         <div>
-          <p>拍品提报审核</p>
           <div className={styles['search-bar']}>
             <div className={styles['search-detail']}>
               <span className={styles['item-title']}>卖家号码</span>

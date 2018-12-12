@@ -56,7 +56,7 @@ class LotManage extends React.Component {
               </Menu.Item>
             </Menu>
           </Header>
-          <Content>
+          <Content style={{ minHeight: "600px" }}>
             {/* <Route exact path={`${this.props.match.path}`} component={LotManage} /> */}
             <Route path={`${this.props.match.path}/submit-check`} component={SubmitCheck} />
             <Route path={`${this.props.match.path}/online-lots`} component={OnlineLots} />

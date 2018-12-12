@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { message, Carousel, Modal, Button } from 'antd'
+import { message, Carousel, Modal } from 'antd'
 import styles from '../../../style/AllLotShow.sass'
 import detailedStyles from '../../../style/DetailedItem.sass'
 import { graphql, Query, Mutation } from 'react-apollo'
@@ -38,7 +38,7 @@ const oneItemData = gql`
 `
 
 const changeStatusMutation = gql`
-  mutation CHANGE($id: ID!, $time: DateTime!){
+  mutation CHANGE($id: ID!, $time: Date!){
     updateManyAuctionItems(
       where: {
         id: $id,
@@ -53,24 +53,24 @@ const changeStatusMutation = gql`
     }
   }
 `
-const reportDenyMutation = gql`
-  mutation CHANGE($id: ID!, $time: DateTime!){
-    updateManyAuctionItems(
-      where: {
-        id: $id,
-        status: InFirstCheck,
-      },
-      data: {
-        status: Ended,
-        endedReason: FirstCheckFailed,
-        endedTime: $time,
-        lastStatusChangeTime: $time,
-      }
-    ) {
-      count
-    }
-  }
-`
+// const reportDenyMutation = gql`
+//   mutation CHANGE($id: ID!){
+//     updateManyAuctionItems(
+//       where: {
+//         id: $id,
+//         status: InFirstCheck,
+//       },
+//       data: {
+//         status: Ended,
+//         endedReason: FirstCheckFailed,
+//         endedTime: new Date(now),
+//         lastStatusChangeTime: new Date(now),
+//       }
+//     ) {
+//       count
+//     }
+//   }
+// `
 
 // ❌ use apolloFetch
 // import { createApolloFetch } from 'apollo-fetch'
@@ -196,7 +196,7 @@ class DetailedItem extends React.Component {
                         <p className={detailedStyles['intro-line-title']}>拍品介绍 </p><p className={detailedStyles['intro-line-text']}>{data.auctionItem.description}</p>
                       </div>
                       <div className={detailedStyles['intro-line']}>
-                        <p className={detailedStyles['intro-line-title']}>提报时间</p><p className={detailedStyles['intro-line-text']}>{date.format(new Date(data.auctionItem.createTime), 'YYYY年MM月DD日 HH:mm')}</p>
+                        <p className={detailedStyles['intro-line-title']}>状态改变</p><p className={detailedStyles['intro-line-text']}>{date.format(new Date(data.auctionItem.lastStatusChangeTime), 'YYYY年MM月DD日 HH:mm')}</p>
                       </div>
                     </div>
                     <div className={detailedStyles["right-top-right-bar"]}>
@@ -220,58 +220,6 @@ class DetailedItem extends React.Component {
                         })}
                       </div>
                     </div>
-                  </div>
-                  <div className={detailedStyles['button-ctn']}>
-                    <Mutation mutation={changeStatusMutation}>
-                      {(updateManyAuctionItems) => (
-                        <div className={detailedStyles['button-left']}>
-                          <Button type="primary" onClick={
-                            async e => {
-                              console.log("hello")
-                              e.preventDefault()
-                              const { data } = await updateManyAuctionItems({
-                                variables: {
-                                  id: this.props.id,
-                                  time: new Date(),
-                                }
-                              })
-                              console.log(data)
-                              if (data.updateManyAuctionItems.count == 1) {
-                                message.success('提报申请审核通过！');
-                              } else {
-                                message.error('操作失败！');
-                              }
-                            }}>
-                            审核通过
-                        </Button>
-                        </div>
-                      )}
-                    </Mutation>
-                    <Mutation mutation={reportDenyMutation}>
-                      {(updateManyAuctionItems) => (
-                        <div className={detailedStyles['button-right']}>
-                          <Button onClick={
-                            async e => {
-                              console.log("hello")
-                              e.preventDefault()
-                              const { data } = await updateManyAuctionItems({
-                                variables: {
-                                  id: this.props.id,
-                                  time: new Date(),
-                                }
-                              })
-                              console.log(data)
-                              if (data.updateManyAuctionItems.count == 1) {
-                                message.success('提报申请审核不通过 操作成功！');
-                              } else {
-                                message.error('操作失败！');
-                              }
-                            }}>
-                            审核不通过
-                        </Button>
-                        </div>
-                      )}
-                    </Mutation>
                   </div>
 
                 </div>

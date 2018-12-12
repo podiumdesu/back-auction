@@ -21,7 +21,17 @@ class DisplayItem extends React.Component {
           backgroundSize: "200px 100px",
           backgroundPosition: "center",
         }}>
-          <p className={styles["item-issue-time"]}>{this.props.statusToShow}</p>
+          <p style={{
+            backgroundColor: `${this.props.statusColor}`,
+            color: "white",
+            lineHeight: "16px",
+            fontSize: "10px",
+            margin: "0",
+            position: "absolute",
+            bottom: "0",
+            width: "100%",
+            textAlign: "center"
+          }}>{this.props.statusToShow}</p>
 
           {/* <p className={styles["item-issue-time"]}>{date.format(new Date(this.props.info.lastStatusChangeTime), 'YYYY年MM月DD日 HH:mm')}</p> */}
         </div>

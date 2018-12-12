@@ -18,11 +18,10 @@ import { ApolloProvider } from 'react-apollo';
 import { ApolloClient } from 'apollo-client';
 // apolloClient 作为查询结果数据的中心存储
 import { InMemoryCache } from 'apollo-cache-inmemory'
-import { HttpLink } from 'apollo-link-http'
-
+import { setContext } from 'apollo-link-context';
+import { createHttpLink } from 'apollo-link-http';
 // solve 400
 
-import { ApolloLink } from 'apollo-boost'
 import { onError } from 'apollo-link-error'
 
 const errorLink = onError(({ graphQLErrors }) => {
@@ -39,12 +38,32 @@ const errorLink = onError(({ graphQLErrors }) => {
 
 // const client = new ApolloClient({ networkInterface });
 
+// const client = new ApolloClient({
+//   link: ApolloLink.from([errorLink, new HttpLink({
+//     uri: `http://parities.farawaaay.com:4466`
+//   })]),
+//   cache: new InMemoryCache()
+// })
+
+const httpLink = createHttpLink({
+  uri: 'https://core.parities.farawaaay.com/',
+});
+
+const authLink = setContext((_) => {
+  // get the authentication token from local storage if it exists
+  // return the headers to the context so httpLink can read them
+  return {
+    headers: {
+      authorization: { "Authoration": "YWRtaW46UEBzc3cwcmQ=" }
+    }
+  }
+});
+
 const client = new ApolloClient({
-  link: ApolloLink.from([errorLink, new HttpLink({
-    uri: `http://parities.farawaaay.com:4466`
-  })]),
+  link: authLink.concat(httpLink),
   cache: new InMemoryCache()
-})
+});
+
 
 import 'antd/dist/antd.css'
 // import LeftBoard from './layout/LeftBoard/index'
@@ -106,12 +125,12 @@ class Main extends React.Component {
                   <span>明星拍立得</span>
                 </Link>
               </Menu.Item>
-              <Menu.Item key="3">
+              {/* <Menu.Item key="3">
                 <Link to="/FridayLot">
                   <Icon type="upload" />
                   <span>周五拍立得</span>
                 </Link>
-              </Menu.Item>
+              </Menu.Item> */}
               <Menu.Item key="4">
                 <Link to="/UserManage">
                   <Icon type="upload" />
@@ -120,7 +139,7 @@ class Main extends React.Component {
               </Menu.Item>
             </Menu>
           </Sider>
-          <Layout>
+          <Layout style={{ minWidth: "1200px", minHeight: "600px" }}>
             {/* <Icon
               className="trigger"
               type={this.state.collapsed ? 'menu-unfold' : 'menu-fold'}
@@ -128,11 +147,11 @@ class Main extends React.Component {
             /> */}
             {/* <AAA /> */}
 
-            <Content style={{ margin: '24px 16px', padding: 24, background: '#fff', minHeight: 280 }}>
+            <Content style={{ margin: '24px 16px', padding: 24, background: '#fff', minHeight: "800px", minWidth: "1000px" }}>
               <Route exact path="/" component={LotManage} />
               <Route path="/LotManage" component={LotManage} />
               <Route path="/StarLot" component={StarLot} />
-              <Route path="/FridayLot" component={FridayLot} />
+              {/* <Route path="/FridayLot" component={FridayLot} /> */}
               <Route path="/UserManage" component={UserManage} />
             </Content>
           </Layout>
