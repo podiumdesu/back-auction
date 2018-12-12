@@ -112,6 +112,14 @@ class Main extends React.Component {
             collapsed={this.state.collapsed}
           >
             <div className="logo" />
+            <h1 style={{
+              color: "rgba(255, 255, 255, 0.8)",
+              margin: "0",
+              lineHeight: "51px",
+              fontSize: "21px",
+              textAlign: "center",
+              letterSpacing: "1px",
+            }}>拍立得后台</h1>
             <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
               <Menu.Item key="1">
                 <Link to="/LotManage">

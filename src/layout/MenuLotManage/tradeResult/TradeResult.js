@@ -78,6 +78,7 @@ class tradeResult extends React.Component {
       currentItemId: "",
       progressTips: "->拍品详情",
       returnEle: [],
+      currentPage: 1,
     }
     this.changePageClick = this.changePageClick.bind(this)
     this.transferItemId = this.transferItemId.bind(this)
@@ -118,7 +119,8 @@ class tradeResult extends React.Component {
     }
     console.log(returnEle)
     this.setState({
-      returnEle: returnEle
+      returnEle: returnEle,
+      currentPage: page
     })
   }
   // 点击获取所有内容按钮触发：
@@ -188,7 +190,7 @@ class tradeResult extends React.Component {
               {this.state.returnEle}
             </div>
           </div>
-          <Pagination total={50} onChange={this.changePageClick} hideOnSinglePage={true} total={this.state.displayItems.length} pageSize={pageDataItemsNum} defaultCurrent={this.state.displayItems.length / pageDataItemsNum} current={this.state.displayItems.length / pageDataItemsNum} />
+          <Pagination onChange={this.changePageClick} hideOnSinglePage={true} total={this.state.displayItems.length} pageSize={pageDataItemsNum} defaultCurrent={this.state.currentPage} current={this.state.currentPage} />
         </div>
 
       )
@@ -205,6 +207,26 @@ class tradeResult extends React.Component {
                   console.log(data.auctionItems)
                   this.getAllItems(data.auctionItems)
                   this.clearItemId()
+                  console.log(this.state.currentPage)
+                  let page = this.state.currentPage
+                  let pageSize = pageDataItemsNum
+                  let returnEle = []
+                  for (let i = 0, len = (this.state.displayItems.length < page * pageSize) ? this.state.displayItems.length % pageSize : pageSize; i < len; i++) {
+                    console.log(len)
+                    returnEle.push(
+                      <DisplayItem transferItemId={this.transferItemId.bind(this, this.state.displayItems[i + (page - 1) * pageSize].id)}
+                        key={this.state.displayItems[i + (page - 1) * pageSize].id}
+                        statusToShow={showChineseStatusAccordingString(this.state.displayItems[i + (page - 1) * pageSize].status)}
+                        statusColor={getStatusColor(this.state.displayItems[i + (page - 1) * pageSize].status)}
+
+                        info={this.state.displayItems[i + (page - 1) * pageSize]}
+                      />)
+                  }
+                  console.log(returnEle)
+                  this.setState({
+                    returnEle: returnEle,
+                  })
+
                 }}>拍品提报审核</span>->拍品详情</p>
               <div className={styles["result-ctn"]}>
                 <div className={styles["result-ctn-flex"]}>
