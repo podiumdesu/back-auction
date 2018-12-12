@@ -161,7 +161,7 @@ class DetailedItem extends React.Component {
                         return (
                           <div>
                             <p className={detailedStyles['click-to-video-text']} >点击播放视频</p>
-                            <img className={detailedStyles['photos']} src={data.auctionItem.photos[1]} onClick={(e) => this.showVideo(data.auctionItem.photos[1], i)} />
+                            <img className={detailedStyles['photos']} src={data.auctionItem.photos[0]} onClick={(e) => this.showVideo(data.auctionItem.photos[1], i)} />
                           </div>
                         )
                       })}
