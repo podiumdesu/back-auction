@@ -2,7 +2,7 @@ import React from 'react'
 import { DatePicker, Input, Select, Button, Icon, Pagination } from 'antd'
 import { graphql, Query } from 'react-apollo'
 import gql from 'graphql-tag'
-import { showChineseStatusAccordingString, getStatusColor } from '../../../utils/commonChange'
+import { showShippingStatus, getStatusColor } from '../../../utils/commonChange'
 import styles from '../../../style/AllLotShow.sass'
 import { ApolloConsumer } from 'react-apollo'
 import 'babel-polyfill';
@@ -28,8 +28,8 @@ const getWaitingFirstCheckItemData = gql`
   query {
     auctionItems (
       where: {
-        status_in: [TransportingToPlatform, InSecondCheck]
-        # status_in: [InFirstCheck, InAuction]
+        status_in: [PlatformShipping, Ended]   # 发货给买家 / 二审不通过
+        extraStatus_in: [PlatformShippingBack]  # 发货给卖家
       }
     ){
       id
@@ -66,7 +66,7 @@ const getWaitingFirstCheckItemData = gql`
 //     }
 //   }
 // `
-class objectCheck extends React.Component {
+class PlatformShipping extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -108,7 +108,7 @@ class objectCheck extends React.Component {
       returnEle.push(
         <DisplayItem transferItemId={this.transferItemId.bind(this, this.state.displayItems[i + (page - 1) * pageSize].id)}
           key={this.state.displayItems[i + (page - 1) * pageSize].id}
-          statusToShow={showChineseStatusAccordingString(this.state.displayItems[i + (page - 1) * pageSize].status)}
+          statusToShow={showShippingStatus(this.state.displayItems[i + (page - 1) * pageSize].status)}
           statusColor={getStatusColor(this.state.displayItems[i + (page - 1) * pageSize].status)}
           info={this.state.displayItems[i + (page - 1) * pageSize]}
         />)
@@ -130,7 +130,7 @@ class objectCheck extends React.Component {
     if (firstRenderNum === 0) {
       console.log("ddd")
       this.setState({
-        returnEle: "没有需要审核的拍品"
+        returnEle: "没有需要发货的拍品"
       })
     } else {
 
@@ -140,7 +140,7 @@ class objectCheck extends React.Component {
         returnEle.push(
           <DisplayItem transferItemId={this.transferItemId.bind(this, this.state.displayItems[i].id)}
             key={this.state.displayItems[i].id}
-            statusToShow={showChineseStatusAccordingString(this.state.displayItems[i].status)}
+            statusToShow={showShippingStatus(this.state.displayItems[i].status)}
             statusColor={getStatusColor(this.state.displayItems[i].status)}
             info={this.state.displayItems[i]} />)
       }
@@ -224,7 +224,7 @@ class objectCheck extends React.Component {
                     returnEle.push(
                       <DisplayItem transferItemId={this.transferItemId.bind(this, this.state.displayItems[i + (page - 1) * pageSize].id)}
                         key={this.state.displayItems[i + (page - 1) * pageSize].id}
-                        statusToShow={showChineseStatusAccordingString(this.state.displayItems[i + (page - 1) * pageSize].status)}
+                        statusToShow={showShippingStatus(this.state.displayItems[i + (page - 1) * pageSize].status)}
                         statusColor={getStatusColor(this.state.displayItems[i + (page - 1) * pageSize].status)}
 
                         info={this.state.displayItems[i + (page - 1) * pageSize]}
@@ -265,4 +265,4 @@ class objectCheck extends React.Component {
   }
 }
 
-export default objectCheck
+export default PlatformShipping

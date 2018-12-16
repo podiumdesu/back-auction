@@ -2,7 +2,7 @@ import React from 'react'
 import styles from '../../../style/UserManage.sass'
 import { graphql, Query, Mutation } from 'react-apollo'
 import gql from 'graphql-tag'
-import { Button, Switch, Popconfirm, Modal, message } from 'antd'
+import { Switch, Modal, message, Icon } from 'antd'
 const GetUsersData = gql`
   query {
     users {
@@ -193,15 +193,15 @@ class DetailedItem extends React.Component {
             return (
               <div className={styles["item-detail-ctn"]} >
                 <div className={styles["user-info-title-ctn"]}>
-                  <p className={styles['user-info-name']}>用户昵称</p>
-                  <p className={styles['user-info-phone']} >手机号码</p>
-                  <p className={styles['user-info-check']}>是否验证身份</p>
+                  <p className={styles['user-info-name']}><Icon type="user" /> 用户昵称</p>
+                  <p className={styles['user-info-phone']} ><Icon type="phone" /> 手机号码</p>
+                  <p className={styles['user-info-check']}><Icon type="idcard" /> 是否验证身份</p>
                   {/* <p className={styles['user-info-real-name']}>真实姓名</p> */}
                   {/* <p className={styles['user-info-idCard']}>身份证号</p> */}
-                  <p className={styles['user-info-buyNum']}>正在交易拍品数量</p>
-                  <p className={styles['user-info-sellNum']}>正在出售拍品数量</p>
-                  <p className={styles['user-info-point']}>信用积分</p>
-                  <p className={styles['user-info-operation']}>操作</p>
+                  <p className={styles['user-info-buyNum']}><Icon type="shopping-cart" /> 正在交易拍品数</p>
+                  <p className={styles['user-info-sellNum']}><Icon type="pay-circle" /> 正在出售拍品数</p>
+                  <p className={styles['user-info-point']}><Icon type="notification" /> 信用积分</p>
+                  <p className={styles['user-info-operation']}><Icon type="smile" /> 操作</p>
                 </div>
                 {ReturnEle}
               </div >

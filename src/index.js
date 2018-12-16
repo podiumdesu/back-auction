@@ -120,7 +120,9 @@ class Main extends React.Component {
               textAlign: "center",
               letterSpacing: "1px",
             }}>拍立得后台</h1>
-            <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
+            {/* <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}> */}
+            <Menu theme="dark" mode="inline">
+
               <Menu.Item key="1">
                 <Link to="/LotManage">
                   <Icon type="user" />
@@ -130,7 +132,7 @@ class Main extends React.Component {
               <Menu.Item key="2">
                 <Link to="/StarLot">
                   <Icon type="video-camera" />
-                  <span>明星拍立得</span>
+                  <span>拍立得许愿池</span>
                 </Link>
               </Menu.Item>
               {/* <Menu.Item key="3">
@@ -156,7 +158,7 @@ class Main extends React.Component {
             {/* <AAA /> */}
 
             <Content style={{ margin: '24px 16px', padding: 24, background: '#fff', minHeight: "800px", minWidth: "1000px" }}>
-              <Route exact path="/" component={LotManage} />
+              {/* <Route exact path="/" component={LotManage} /> */}
               <Route path="/LotManage" component={LotManage} />
               <Route path="/StarLot" component={StarLot} />
               {/* <Route path="/FridayLot" component={FridayLot} /> */}

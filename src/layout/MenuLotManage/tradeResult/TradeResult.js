@@ -199,7 +199,7 @@ class tradeResult extends React.Component {
         <ApolloConsumer>
           {client => (
             <div>
-              <p><span style={{ textDecoration: 'underline' }}
+              <p className={styles["return-text"]}><span style={{ textDecoration: 'underline' }}
                 onClick={async () => {
                   const { data } = await client.query({
                     query: allItemData,

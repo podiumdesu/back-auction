@@ -29,6 +29,14 @@ function showChineseStatusAccordingString(status) {
 
 }
 
+function showShippingStatus(status) {
+  const changeSet = {
+    "PlatformShipping": '等待发货给买家',
+    "Ended": '二审不通过，等待退回'
+  }
+  return changeSet[status]
+}
+
 function getStatusColor(status) {
   const changeSet = {
 
@@ -49,5 +57,6 @@ function getStatusColor(status) {
 export {
   showCategoryAccordingNum,
   showChineseStatusAccordingString,
-  getStatusColor
+  getStatusColor,
+  showShippingStatus
 }
