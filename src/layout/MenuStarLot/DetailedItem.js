@@ -1,16 +1,14 @@
 import React from 'react'
 
 import { message, Carousel, Modal, Button, Input } from 'antd'
-import styles from '../../../style/AllLotShow.sass'
-import detailedStyles from '../../../style/DetailedItem.sass'
+import styles from '../../style/AllLotShow.sass'
+import detailedStyles from '../../style/DetailedItem.sass'
 import { graphql, Query, Mutation } from 'react-apollo'
 import gql from 'graphql-tag'
 import date from 'date-and-time'
 import { Player } from 'video-react'
-import "../../../../node_modules/video-react/dist/video-react.css";
-import '../../../style/carousel.css'
-
-const { TextArea } = Input;
+import "../../../node_modules/video-react/dist/video-react.css";
+import '../../style/carousel.css'
 
 const oneItemData = gql`
   query QUERY_ONE_ITEM(  $id: ID!  ) {
@@ -32,72 +30,48 @@ const oneItemData = gql`
       }
       status
       lastStatusChangeTime
-      
-      # 卖家发货信息
-      sellerShippedTime
-      sellerExpressId
       # category {
       #   id
       # }
     }
   }
 `
-// 确认收货
-const getItemsMutation = gql`
-  mutation CHANGE($id: ID!, $time: DateTime!){
-    updateAuctionItemAdmin(
-      where: {
-        id: $id,
-        status: TransportingToPlatform
-      },
-      data: {
-        status: InSecondCheck,
-        lastStatusChangeTime: $time,
-      }
-    ) {
-      count
-    }
-  }
-`
-const auctionCheckPassMutation = gql`
-  mutation CHANGE($id: ID!, $time: DateTime!){
-    updateAuctionItemAdmin(
-      where: {
-        id: $id,
-        status: InSecondCheck,
-      },
-      data: {
-        status: PlatformShipping,
-        lastStatusChangeTime: $time,
-        extraStatus: PlatformShippingBack   # 此处请注意在平台发货后将此处删除
-      }
-    ) {
-      count
-    }
-  }
-`
 
-const auctionCheckDenyMutation = gql`
+const changeStatusMutation = gql`
+  mutation CHANGE($id: ID!, $time: DateTime!){
+    updateAuctionItemAdmin(
+      where: {
+        id: $id,
+        status: InFirstCheck,
+      },
+      data: {
+        status: InAuction,
+        lastStatusChangeTime: $time,
+      }
+    ) {
+      count
+    }
+  }
+`
+const reportDenyMutation = gql`
   mutation CHANGE($id: ID!, $time: DateTime!, $reason: String!){
     updateAuctionItemAdmin(
       where: {
         id: $id,
-        status: InSecondCheck,
+        status: InFirstCheck,
       },
       data: {
         status: Ended,
-        extraStatus: PlatformShippingBack,
-        endedReason: SecondCheckFailed,
+        endedReason: FirstCheckFailed,
         endedTime: $time,
         lastStatusChangeTime: $time,
-        secondCheckFailReason: $reason,
+        firstCheckFailReason: $reason
       }
     ) {
       count
     }
   }
 `
-
 
 // ❌ use apolloFetch
 // import { createApolloFetch } from 'apollo-fetch'
@@ -111,10 +85,9 @@ class DetailedItem extends React.Component {
     this.state = {
       visible: false,
       showVideo: false,
-      auctionStatus: "NULL",
       buttonDisabled: false,
       reasonVisible: false,
-      secondCheckFailReason: ""
+      firstCheckFailReason: "",
     }
     this.showBigPhoto = this.showBigPhoto.bind(this)
     this.handleOk = this.handleOk.bind(this)
@@ -124,11 +97,7 @@ class DetailedItem extends React.Component {
     this.handleReasonCancel = this.handleReasonCancel.bind(this)
     this.getDenyReason = this.getDenyReason.bind(this)
   }
-  // componentDidMount() {
-  //   this.setState({
-  //     auctionStatus: 
-  //   })
-  // }
+
   showBigPhoto(photoPath) {
     this.setState({
       showBigPhotoPath: photoPath,
@@ -158,26 +127,25 @@ class DetailedItem extends React.Component {
       showVideo: false
     });
   }
-
-  handleReasonOk(e) {
+  handleReasonCancel() {
     this.setState({
       reasonVisible: false
     })
   }
-
-  handleReasonCancel(e) {
+  handleReasonOk() {
     this.setState({
-      reasonVisible: false,
-    });
+      reasonVisible: false
+    })
   }
   getDenyReason(e) {
     console.log(e)
     this.setState({
-      secondCheckFailReason: e.target.value
+      firstCheckFailReason: e.target.value
     })
     console.log(e.target.value)
   }
   render() {
+    const that = this
     const ModalThings = !this.state.showVideo ? (
       <div className={detailedStyles['bigPhotos-ctn']}>
         <img className={detailedStyles["bigPhotos"]} src={this.state.showBigPhotoPath} alt="图片" />
@@ -191,7 +159,6 @@ class DetailedItem extends React.Component {
           src={this.state.videoPath}
         />
       </div>)
-    let that = this
     return (
       <div className={detailedStyles['detailed-ctn']}>
         <Modal
@@ -205,6 +172,7 @@ class DetailedItem extends React.Component {
           {ModalThings}
 
         </Modal>
+
         <Modal
           title="输入拒绝理由"
           visible={this.state.reasonVisible}
@@ -213,28 +181,26 @@ class DetailedItem extends React.Component {
           keyboard={true}
           footer={null}
         >
-          <Mutation mutation={auctionCheckDenyMutation}>
+          <Mutation mutation={reportDenyMutation}>
             {(updateAuctionItemAdmin) => (
               <div className={detailedStyles['button-right']}>
                 <Input onChange={that.getDenyReason} style={{ marginBottom: "10px" }} />
                 <Button type="primary" style={{ marginRight: "11px" }} disabled={this.state.buttonDisabled} onClick={
                   async e => {
-                    console.log("hello")
                     e.preventDefault()
-                    if (this.state.secondCheckFailReason.length > 0) {
+                    if (that.state.firstCheckFailReason.length > 0) {
                       const { data } = await updateAuctionItemAdmin({
                         variables: {
                           id: this.props.id,
                           time: new Date(),
-                          reason: that.state.secondCheckFailReason
+                          reason: that.state.firstCheckFailReason
                         }
                       })
-                      console.log(data)
                       if (data.updateAuctionItemAdmin.count == 1) {
                         that.setState({
                           buttonDisabled: true
                         })
-                        message.success('实物审核不通过 操作成功！请尽快发货给卖家')
+                        message.success('提报审核不通过 操作成功！')
                       } else {
                         message.error('操作失败！请刷新后重试');
                         that.setState({
@@ -242,17 +208,18 @@ class DetailedItem extends React.Component {
                         })
                       }
                     } else {
-                      message.error("请输入审核不通过理由！")
+                      message.error("请输入审核不通过的理由！")
                     }
+
                   }}>
-                  实物审核不通过
+                  提报审核不通过
 
                 </Button>
                 <Button disabled={this.state.buttonDisabled} onClick={
                   () => {
                     this.setState({
                       reasonVisible: false,
-                      secondCheckFailReason: ""
+                      firstCheckFailReason: ""
                     })
                   }
                 }>
@@ -261,11 +228,10 @@ class DetailedItem extends React.Component {
               </div>
             )}
           </Mutation>
-
         </Modal>
         <Query query={oneItemData} variables={{ id: this.props.id }} >
           {({ loading, error, data }) => {
-            console.log("query ok")
+            console.log("ok")
             if (loading) return <div>loading</div>
             if (error) return <div>`Error!: ${error}`</div>
             return (
@@ -338,71 +304,39 @@ class DetailedItem extends React.Component {
                     </div>
                   </div>
                   <div className={detailedStyles['button-ctn']}>
-                    {data.auctionItem.status === "TransportingToPlatform" && !(this.state.auctionStatus === "InSecondCheck") ?
-                      <Mutation mutation={getItemsMutation}>
-                        {(updateAuctionItemAdmin) => (
-                          <div className={detailedStyles['button-left']}>
-                            <Button type="primary" onClick={
-                              async e => {
-                                e.preventDefault()
-                                const { data } = await updateAuctionItemAdmin({
-                                  variables: {
-                                    id: this.props.id,
-                                    time: new Date(),
-                                  }
-                                })
-                                if (data.updateAuctionItemAdmin.count == 1) {
-                                  that.setState({
-                                    auctionStatus: "InSecondCheck"
-                                  })
-                                  message.success('收货通过！请尽快进行实物审核');
-                                } else {
-                                  that.setState({
-                                    auctionStatus: "Wrong"
-                                  })
-                                  message.error('操作失败！请刷新重试！');
+                    <Mutation mutation={changeStatusMutation}>
+                      {(updateAuctionItemAdmin) => (
+                        <div className={detailedStyles['button-left']}>
+                          <Button type="primary" disabled={this.state.buttonDisabled} onClick={
+                            async e => {
+                              console.log("hello")
+                              e.preventDefault()
+                              const { data } = await updateAuctionItemAdmin({
+                                variables: {
+                                  id: this.props.id,
+                                  time: new Date(),
                                 }
-                              }}>
-                              确认收货
-                            </Button>
-                          </div>
-                        )}
-                      </Mutation>
-                      : ""}
-                    {data.auctionItem.status === "InSecondCheck" || (data.auctionItem.status === "TransportingToPlatform" && this.state.auctionStatus === "InSecondCheck") ?
-                      <div>
-
-                        <Mutation mutation={auctionCheckPassMutation}>
-                          {(updateAuctionItemAdmin) => (
-                            <div className={detailedStyles['button-left']}>
-                              <Button disabled={this.state.buttonDisabled} type="primary" onClick={
-                                async e => {
-                                  console.log("hello")
-                                  e.preventDefault()
-                                  const { data } = await updateAuctionItemAdmin({
-                                    variables: {
-                                      id: this.props.id,
-                                      time: new Date(),
-                                    }
-                                  })
-                                  console.log(data)
-                                  if (data.updateManyAuctionItems.count == 1) {
-                                    message.success('实物审核通过 操作成功！请尽快发货给买家');
-                                    that.setState({
-                                      buttonDisabled: true
-                                    })
-                                  } else {
-                                    message.error('操作失败！请刷新后重试');
-                                    that.setState({
-                                      buttonDisabled: true
-                                    })
-                                  }
-                                }}>
-                                实物审核通过
-                              </Button>
-                            </div>
-                          )}
-                        </Mutation>
+                              })
+                              console.log(data)
+                              if (data.updateAuctionItemAdmin.status == "InAuction") {
+                                this.setState({
+                                  buttonDisabled: true
+                                })
+                                message.success('提报申请审核通过！');
+                              } else {
+                                message.error('操作失败！');
+                                this.setState({
+                                  buttonDisabled: true
+                                })
+                              }
+                            }}>
+                            审核通过
+                        </Button>
+                        </div>
+                      )}
+                    </Mutation>
+                    <Mutation mutation={reportDenyMutation}>
+                      {(updateAuctionItemAdmin) => (
                         <div className={detailedStyles['button-right']}>
                           <Button disabled={this.state.buttonDisabled} onClick={
                             () => {
@@ -411,15 +345,11 @@ class DetailedItem extends React.Component {
                               })
                             }
                           }>
-                            实物审核不通过
-                          </Button>
+                            审核不通过
+                        </Button>
                         </div>
-
-                      </div>
-
-                      : ""
-
-                    }
+                      )}
+                    </Mutation>
                   </div>
 
                 </div>

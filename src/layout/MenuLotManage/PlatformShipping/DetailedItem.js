@@ -55,7 +55,7 @@ const getSellerInfo = gql`
 `
 const shippingToSeller = gql`  #退货给卖家
   mutation CHANGE($id: ID!, $time: DateTime!, $expressID: String!){
-    updateManyAuctionItems(
+    updateAuctionItemAdmin(
       where: {
         id: $id,
         status: Ended,
@@ -76,7 +76,7 @@ const shippingToSeller = gql`  #退货给卖家
 
 const shippingToBuyer = gql` #发货给买家
   mutation CHANGE($id: ID!, $time: DateTime!, $expressID: String!){
-    updateManyAuctionItems(
+    updateAuctionItemAdmin(
       where: {
         id: $id,
         status: PlatformShipping
@@ -219,7 +219,7 @@ class DetailedItem extends React.Component {
         >
           {this.state.status === "Ended" ?
             <Mutation mutation={shippingToSeller}>
-              {(updateManyAuctionItems) => (
+              {(updateAuctionItemAdmin) => (
                 <div className={detailedStyles['button-right']}>
                   <Input addonBefore="快递单号" onChange={that.getShippingNum} style={{ marginBottom: "10px" }} />
                   <Input addonBefore="邮费" disabled placeholder="邮费到付" onChange={that.getShippingMoney} style={{ marginBottom: "10px" }} />
@@ -227,14 +227,14 @@ class DetailedItem extends React.Component {
                     async e => {
                       e.preventDefault()
                       if (this.state.shippingNum.length > 0) {
-                        const { data } = await updateManyAuctionItems({
+                        const { data } = await updateAuctionItemAdmin({
                           variables: {
                             id: this.props.id,
                             time: new Date(),
                             expressID: this.state.shippingNum
                           }
                         })
-                        if (data.updateManyAuctionItems.count == 1) {
+                        if (data.updateAuctionItemAdmin.count == 1) {
                           that.setState({
                             buttonDisabled: true
                           })
@@ -265,7 +265,7 @@ class DetailedItem extends React.Component {
             </Mutation>
             :
             <Mutation mutation={shippingToBuyer}>
-              {(updateManyAuctionItems) => (
+              {(updateAuctionItemAdmin) => (
                 <div className={detailedStyles['button-right']}>
                   <Input addonBefore="快递单号" onChange={that.getShippingNum} style={{ marginBottom: "10px" }} />
                   <Input addonBefore="邮费" onChange={that.getShippingMoney} style={{ marginBottom: "10px" }} />
@@ -274,7 +274,7 @@ class DetailedItem extends React.Component {
                       console.log("hello")
                       e.preventDefault()
                       if (this.state.shippingNum.length > 0 && this.state.shippingMoney.length > 0) {
-                        const { data } = await updateManyAuctionItems({
+                        const { data } = await updateAuctionItemAdmin({
                           variables: {
                             id: this.props.id,
                             time: new Date(),
@@ -282,7 +282,7 @@ class DetailedItem extends React.Component {
                           }
                         })
                         console.log(data)
-                        if (data.updateManyAuctionItems.count == 1) {
+                        if (data.updateAuctionItemAdmin.count == 1) {
                           that.setState({
                             buttonDisabled: true
                           })

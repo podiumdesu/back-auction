@@ -161,6 +161,7 @@ class Main extends React.Component {
               {/* <Route exact path="/" component={LotManage} /> */}
               <Route path="/LotManage" component={LotManage} />
               <Route path="/StarLot" component={StarLot} />
+
               {/* <Route path="/FridayLot" component={FridayLot} /> */}
               <Route path="/UserManage" component={UserManage} />
             </Content>

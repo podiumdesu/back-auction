@@ -39,24 +39,23 @@ const oneItemData = gql`
 
 const changeStatusMutation = gql`
   mutation CHANGE($id: ID!, $time: DateTime!){
-    updateAuctionItem(
+    updateAuctionItemAdmin(
       where: {
         id: $id,
-        # status: InFirstCheck,
+        status: InFirstCheck,
       },
       data: {
         status: InAuction,
         lastStatusChangeTime: $time,
       }
     ) {
-      id
-      status
+      count
     }
   }
 `
 const reportDenyMutation = gql`
   mutation CHANGE($id: ID!, $time: DateTime!, $reason: String!){
-    updateAuctionItem(
+    updateAuctionItemAdmin(
       where: {
         id: $id,
         status: InFirstCheck,
@@ -69,8 +68,7 @@ const reportDenyMutation = gql`
         firstCheckFailReason: $reason
       }
     ) {
-      id
-      status
+      count
     }
   }
 `
@@ -184,21 +182,21 @@ class DetailedItem extends React.Component {
           footer={null}
         >
           <Mutation mutation={reportDenyMutation}>
-            {(updateAuctionItem) => (
+            {(updateAuctionItemAdmin) => (
               <div className={detailedStyles['button-right']}>
                 <Input onChange={that.getDenyReason} style={{ marginBottom: "10px" }} />
                 <Button type="primary" style={{ marginRight: "11px" }} disabled={this.state.buttonDisabled} onClick={
                   async e => {
                     e.preventDefault()
                     if (that.state.firstCheckFailReason.length > 0) {
-                      const { data } = await updateAuctionItem({
+                      const { data } = await updateAuctionItemAdmin({
                         variables: {
                           id: this.props.id,
                           time: new Date(),
                           reason: that.state.firstCheckFailReason
                         }
                       })
-                      if (data.updateAuctionItem.status == "InAuction") {
+                      if (data.updateAuctionItemAdmin.count == 1) {
                         that.setState({
                           buttonDisabled: true
                         })
@@ -307,20 +305,20 @@ class DetailedItem extends React.Component {
                   </div>
                   <div className={detailedStyles['button-ctn']}>
                     <Mutation mutation={changeStatusMutation}>
-                      {(updateAuctionItem) => (
+                      {(updateAuctionItemAdmin) => (
                         <div className={detailedStyles['button-left']}>
                           <Button type="primary" disabled={this.state.buttonDisabled} onClick={
                             async e => {
                               console.log("hello")
                               e.preventDefault()
-                              const { data } = await updateAuctionItem({
+                              const { data } = await updateAuctionItemAdmin({
                                 variables: {
                                   id: this.props.id,
                                   time: new Date(),
                                 }
                               })
                               console.log(data)
-                              if (data.updateAuctionItem.status == "InAuction") {
+                              if (data.updateAuctionItemAdmin.status == "InAuction") {
                                 this.setState({
                                   buttonDisabled: true
                                 })
@@ -338,7 +336,7 @@ class DetailedItem extends React.Component {
                       )}
                     </Mutation>
                     <Mutation mutation={reportDenyMutation}>
-                      {(updateAuctionItem) => (
+                      {(updateAuctionItemAdmin) => (
                         <div className={detailedStyles['button-right']}>
                           <Button disabled={this.state.buttonDisabled} onClick={
                             () => {

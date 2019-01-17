@@ -1,5 +1,5 @@
 import React from 'react'
-
+import styles from '../../style/NewStarLot.sass'
 // class NewStarLot extends React.Component {
 //   constructor(props) {
 //     super(props)
@@ -21,8 +21,9 @@ import {
 } from 'antd';
 
 import {
-  DatePicker, TimePicker,
+  DatePicker, TimePicker, message
 } from 'antd';
+import TextArea from 'antd/lib/input/TextArea';
 
 const { MonthPicker, RangePicker } = DatePicker;
 
@@ -67,27 +68,38 @@ class NewStarLot extends React.Component {
     e.preventDefault();
     this.props.form.validateFields((err, fieldsValue) => {
       if (!err) {
-        console.log('Received values of form: ', fieldsValue);
+        // console.log('Received values of form: ', fieldsValue);
       }
       // Should format date value before submit.
       const rangeValue = fieldsValue['range-picker'];
-      const rangeTimeValue = fieldsValue['range-time-picker'];
-      const values = {
-        // ...fieldsValue,
-        'idolName': fieldsValue['idolName'],
-        'idolQuote': fieldsValue['idolQuote'],
-        'fansChoices': fieldsValue['fansChoices'],
-        'date-picker': fieldsValue['date-picker'].format('YYYY-MM-DD'),
-        'date-time-picker': fieldsValue['date-time-picker'].format('YYYY-MM-DD HH:mm:ss'),
-        'month-picker': fieldsValue['month-picker'].format('YYYY-MM'),
-        'range-picker': [rangeValue[0].format('YYYY-MM-DD'), rangeValue[1].format('YYYY-MM-DD')],
-        // 'range-time-picker': [
-        //   rangeTimeValue[0].format('YYYY-MM-DD HH:mm:ss'),
-        //   rangeTimeValue[1].format('YYYY-MM-DD HH:mm:ss'),
-        // ],
-        // 'time-picker': fieldsValue['time-picker'].format('HH:mm:ss'),
-      };
-      console.log('Received values of form: ', values);
+      const finishAll = fieldsValue['idolName'] && fieldsValue['idolQuote'] && rangeValue[0] && rangeValue[1]
+        && fieldsValue['fansChoices'] && fieldsValue['startingPrice'] && fieldsValue['timeToStart']
+        && fieldsValue['publicWelfareString'] && fieldsValue['pastIdolName'] && fieldsValue['extraInfo']
+      if (finishAll) {
+        const values = {
+          // ...fieldsValue,
+          'idolName': fieldsValue['idolName'],
+          'idolQuote': fieldsValue['idolQuote'],
+
+          'range-picker': [rangeValue[0], rangeValue[1]],
+          'fansChoices': fieldsValue['fansChoices'],
+
+          'startingPrice': fieldsValue['startingPrice'],
+          'timeToStart': fieldsValue['timeToStart'],
+
+          'publicWelfareString': fieldsValue['publicWelfareString'],
+          'pastIdolName': fieldsValue['pastIdolName'],
+
+          'extraInfo': fieldsValue['extraInfo'],
+
+        };
+        // console.log(rangeVa)
+        console.log('Received values of form: ', values);
+      } else {
+        message.error("请填写完整信息！")
+      }
+
+
     });
   }
 
@@ -130,13 +142,13 @@ class NewStarLot extends React.Component {
 
 
 
-    getFieldDecorator('keys', { initialValue: [] });
+    getFieldDecorator('keys', { initialValue: [0] });
     const keys = getFieldValue('keys');
     const formItems = keys.map((k, index) => (
       <Form.Item
         {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
         label={index === 0 ? '许愿池' : ''}
-        required={false}
+        required={true}
         key={k}
       >
         {getFieldDecorator(`fansChoices[${k}]`, {
@@ -162,8 +174,11 @@ class NewStarLot extends React.Component {
     ));
     return (
       <Form onSubmit={this.handleSubmit}>
+        <h3 className={styles['title']}>Banner图</h3>
 
 
+
+        <h3 className={styles['title']}>爱豆信息</h3>
         <Form.Item {...formItemLayout} label="本期许愿爱豆" >
           {getFieldDecorator('idolName', {
             rules: [{
@@ -187,13 +202,8 @@ class NewStarLot extends React.Component {
 
 
 
-        <h3 style={{ textAlign: 'center' }}>许愿信息</h3>
-        {formItems}
-        <Form.Item {...formItemLayoutWithOutLabel}>
-          <Button type="dashed" onClick={this.add} style={{ width: '60%' }}>
-            <Icon type="plus" /> 添加愿望
-          </Button>
-        </Form.Item>
+
+        <h3 className={styles['title']}>许愿信息</h3>
         <Form.Item
           {...formItemLayout}
           label="圆梦时间"
@@ -203,7 +213,16 @@ class NewStarLot extends React.Component {
           )}
         </Form.Item>
 
-        <h3 style={{ textAlign: 'center' }}>竞拍信息</h3>
+
+        {formItems}
+        <Form.Item {...formItemLayoutWithOutLabel}>
+          <Button type="dashed" onClick={this.add} style={{ width: '60%' }}>
+            <Icon type="plus" /> 添加愿望
+          </Button>
+        </Form.Item>
+
+
+        <h3 className={styles['title']}>竞拍信息</h3>
         <Form.Item {...formItemLayout} label="许愿底价" >
           {getFieldDecorator('startingPrice', {
             rules: [{
@@ -223,7 +242,7 @@ class NewStarLot extends React.Component {
           )}
         </Form.Item>
 
-        <h3 style={{ textAlign: 'center' }}>公益信息</h3>
+        <h3 className={styles['title']}>公益信息</h3>
         <Form.Item {...formItemLayout} label="公益信息">
           {getFieldDecorator('publicWelfareString', {
             rules: [{
@@ -231,76 +250,42 @@ class NewStarLot extends React.Component {
               message: '请输入公益信息',
             }],
           })(
-            <Input style={{ width: '50%' }}
+            <TextArea style={{ width: '80%' }}
               autosize={{ minRows: 4 }}
-              type='textarea' placeholder="公益信息" />
+              placeholder="多行输入" />
           )}
         </Form.Item>
 
-
-        <h3 style={{ textAlign: 'center' }}>补充内容</h3>
-        <Form.Item {...formItemLayout} label="用户协议">
-          {getFieldDecorator('publicWelfareString', {
+        <h3 className={styles['title']}>往期回顾</h3>
+        <Form.Item {...formItemLayout} label="爱豆姓名">
+          {getFieldDecorator('pastIdolName', {
             rules: [{
-              required: false,
+              required: true,
               message: '请输入用户协议',
             }],
           })(
-            <Input style={{ width: '50%' }}
-              autosize={{ minRows: 4 }}
-              type='textarea' placeholder="多行输入" />
+            < Input style={{ width: '30%' }} placeholder="姓名" />
           )}
         </Form.Item>
 
-
-
-        {/* <Form.Item
-        //   {...formItemLayout}
-        //   label="DatePicker"
-        // >
-        //   {getFieldDecorator('date-picker', config)(
-        //     <DatePicker />
-        //   )}
-        // </Form.Item>
-
-        // <Form.Item
-        //   {...formItemLayout}
-        //   label="MonthPicker"
-        // >
-        //   {getFieldDecorator('month-picker', config)(
-        //     <MonthPicker />
-        //   )}
-        // </Form.Item>
-
-        {/* <Form.Item
-          {...formItemLayout}
-          label="RangePicker[showTime]"
-        >
-          {getFieldDecorator('range-time-picker', rangeConfig)(
-            <RangePicker showTime format="YYYY-MM-DD HH:mm:ss" />
+        <h3 className={styles['title']}>补充内容</h3>
+        <Form.Item {...formItemLayout} label="用户协议">
+          {getFieldDecorator('extraInfo', {
+            rules: [{
+              required: true,
+              message: '请输入用户协议',
+            }],
+          })(
+            <TextArea style={{ width: '80%' }}
+              autosize={{ minRows: 4 }}
+              placeholder="多行输入" />
           )}
-        </Form.Item> */}
-        {/* <Form.Item
-          {...formItemLayout}
-          label="TimePicker"
-        >
-          {getFieldDecorator('time-picker', config)(
-            <TimePicker />
-          )}
-        </Form.Item> */}
-        {/* <Form.Item
-          wrapperCol={{
-            xs: { span: 24, offset: 0 },
-            sm: { span: 16, offset: 8 },
-          }}
-        >
-          <Button type="primary" htmlType="submit">Submit</Button>
-        </Form.Item> */}
+        </Form.Item>
 
         <Form.Item {...formItemLayoutWithOutLabel}>
           <Button type="primary" htmlType="submit">Submit</Button>
         </Form.Item>
-      </Form>
+      </Form >
     );
   }
 }

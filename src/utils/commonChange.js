@@ -29,6 +29,19 @@ function showChineseStatusAccordingString(status) {
 
 }
 
+function showChineseStatusOfStarLotAccordingString(status) {
+  const changeSet = {
+    "Pending": '等待开始',
+    "InAuction": '竞拍中',
+    "BuyerPaying": '等待支付',
+    "Finishing": '等待结束',
+    "Finished": '已结束',
+    "Failed": '流拍'
+  }
+  return changeSet[status]
+
+}
+
 function showShippingStatus(status) {
   const changeSet = {
     "PlatformShipping": '等待发货给买家',
@@ -54,9 +67,24 @@ function getStatusColor(status) {
   return changeSet[status] ? changeSet[status] : 'rgba(0,0,0)'
 
 }
+
+function getStatusColorOfStarLot(status) {
+  const changeSet = {
+    "Pending": 'rgba(0,0,0,0.75)',
+    "InAuction": 'rgba(0,0,0,0.75)',
+    "BuyerPaying": 'rgba(0,0,0,0.75)',
+    "Finishing": 'rgba(0,0,0,0.75)',
+    "Finished": 'rgba(0,0,0,0.75)',
+    "Failed": 'rgba(0,0,0,0.3)'
+  }
+  return changeSet[status] ? changeSet[status] : 'rgba(0,0,0)'
+
+}
 export {
   showCategoryAccordingNum,
   showChineseStatusAccordingString,
+  showChineseStatusOfStarLotAccordingString,
   getStatusColor,
+  getStatusColorOfStarLot,
   showShippingStatus
 }

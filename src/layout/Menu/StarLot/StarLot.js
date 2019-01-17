@@ -35,7 +35,7 @@ class StarLot extends React.Component {
               </Menu.Item>
             </Menu>
           </Header>
-          <Content style={{ minHeight: "600px" }}>
+          <Content style={{ minHeight: "600px", paddingTop: '15px' }}>
             {/* <Route exact path={`${this.props.match.path}`} component={LotManage} /> */}
             <Route path={`${this.props.match.path}/report-new-star-lot`} component={NewStarLot} />
             <Route path={`${this.props.match.path}/all-star-lot`} component={AllStarLot} />
