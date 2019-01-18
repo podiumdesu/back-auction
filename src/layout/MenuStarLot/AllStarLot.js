@@ -30,28 +30,79 @@ const getAllStarLot = gql`
       status
       lastStatusChangeTime
       id
+      highestBid
       highestBidUser {
         name
+        phoneNumber
       }
     }
   }
 `
-// const getAllStarLot = gql`
-//   query idolWishingWells($status: Number!){
-//     idolWishingWells(status: $status) {
-//       id
-//       title
-//       description
-//       status
-//       categoryId
-//       lastStatusChangeTime
-//       seller {
-//         id
-//         phoneNumber
-//       }
-//     }
-//   }
-// `
+const getStarLotBySearch = gql`
+  query idolWishingWells($name: String, $phoneNumber: String){
+    idolWishingWells(
+      where: {
+        name: $name
+        highestBidUser: {
+         phoneNumber: $phoneNumber
+        }
+      }
+    ) {
+      name
+      images
+      status
+      lastStatusChangeTime
+      id
+      highestBid
+      highestBidUser {
+        name
+        phoneNumber
+      }
+    }
+  }
+`
+const getStarLotBySearchIdolName = gql`
+  query idolWishingWells($name: String ){
+    idolWishingWells(
+      where: {
+        name: $name
+      }
+    ) {
+      name
+      images
+      status
+      lastStatusChangeTime
+      id
+      highestBid
+      highestBidUser {
+        name
+        phoneNumber
+      }
+    }
+  }
+`
+const getStarLotBySearchPhoneNumber = gql`
+  query idolWishingWells( $phoneNumber: String){
+    idolWishingWells(
+      where: {
+        highestBidUser: {
+         phoneNumber: $phoneNumber
+        }
+      }
+    ) {
+      name
+      images
+      status
+      lastStatusChangeTime
+      id
+      highestBid
+      highestBidUser {
+        name
+        phoneNumber
+      }
+    }
+  }
+`
 class AllStarLot extends React.Component {
   constructor(props) {
     super(props)
@@ -62,11 +113,16 @@ class AllStarLot extends React.Component {
       progressTips: "->详情",
       returnEle: [],
       currentPage: 1,
+      idolName: null,
+      phoneNumber: null,
     }
     this.changePageClick = this.changePageClick.bind(this)
     this.transferItemId = this.transferItemId.bind(this)
     this.clearItemId = this.clearItemId.bind(this)
     this.getAllItems = this.getAllItems.bind(this)
+    this.getSearchResult = this.getSearchResult.bind(this)
+    this.getIdolNameBySearch = this.getIdolNameBySearch.bind(this)
+    this.getPhoneNumberBySearch = this.getPhoneNumberBySearch.bind(this)
   }
 
   async clearItemId() {
@@ -76,9 +132,21 @@ class AllStarLot extends React.Component {
 
   }
 
+  getIdolNameBySearch(e) {
+    this.setState({
+      idolName: e.target.value
+    })
+  }
+
+  getPhoneNumberBySearch(e) {
+    this.setState({
+      phoneNumber: e.target.value
+    })
+  }
+
   transferItemId(itemId) {
 
-    console.log('transferItemId' + itemId)
+    //console.log('transferItemId' + itemId)
     // 通过 itemID 获取该产品的信息
     // 目前应当是需要
     this.setState({
@@ -86,11 +154,11 @@ class AllStarLot extends React.Component {
     })
   }
   changePageClick(page, pageSize) {
-    console.log(page, pageSize)
+    //console.log(page, pageSize)
     const returnEle = []
 
     for (let i = 0, len = (this.state.displayItems.length < page * pageSize) ? this.state.displayItems.length % pageSize : pageSize; i < len; i++) {
-      console.log(len)
+      //console.log(len)
       returnEle.push(
         <DisplayItem transferItemId={this.transferItemId.bind(this, this.state.displayItems[i + (page - 1) * pageSize].id)}
           key={this.state.displayItems[i + (page - 1) * pageSize].id}
@@ -99,7 +167,7 @@ class AllStarLot extends React.Component {
           info={this.state.displayItems[i + (page - 1) * pageSize]}
         />)
     }
-    console.log(returnEle)
+    //console.log(returnEle)
     this.setState({
       returnEle: returnEle,
       currentPage: page
@@ -114,15 +182,15 @@ class AllStarLot extends React.Component {
     const returnEle = []
     const firstRenderNum = (this.state.displayItems.length < pageDataItemsNum) ? this.state.displayItems.length : pageDataItemsNum
     if (firstRenderNum === 0) {
-      console.log("ddd")
+      //console.log("ddd")
       this.setState({
-        returnEle: "没有需要审核的拍品"
+        returnEle: "没有许愿池物品"
       })
     } else {
-      // console.log(this.state.displayItems[0])
+      //console.log(this.state.displayItems[0])
       for (let i = 0, len = firstRenderNum; i < len; i++) {
-        console.log('color' + getStatusColorOfStarLot(this.state.displayItems[i].status))
-        console.log('status' + this.state.displayItems[i].status)
+        //console.log('color' + getStatusColorOfStarLot(this.state.displayItems[i].status))
+        //console.log('status' + this.state.displayItems[i].status)
         returnEle.push(
           <DisplayItem transferItemId={this.transferItemId.bind(this, this.state.displayItems[i].id)}
             key={this.state.displayItems[i].id}
@@ -134,18 +202,37 @@ class AllStarLot extends React.Component {
         returnEle: returnEle
       })
     }
-    // const firstRenderNum = (this.state.displayItems.length < pageDataItemsNum) ? this.state.displayItems.length : pageDataItemsNum
-    // if (firstRenderNum === 0) {
-    //   returnEle = "没有需要审核的拍品"
-    // } else {
-    //   for (let i = 0, len = firstRenderNum; i < len; i++) {
-    //     returnEle.push(
-    //       <DisplayItem transferItemId={this.transferItemId.bind(this, this.state.displayItems[i].id)}
-    //         key={this.state.displayItems[i].id}
-    //         statusToShow="hello"
-    //         info={this.state.displayItems[i]} />)
-    //   }
-    // }
+
+  }
+
+  getSearchResult(allItems) {
+    this.setState({
+      allItems: allItems,
+      displayItems: allItems
+    })
+    const returnEle = []
+    const firstRenderNum = (this.state.displayItems.length < pageDataItemsNum) ? this.state.displayItems.length : pageDataItemsNum
+    if (firstRenderNum === 0) {
+      //console.log("ddd")
+      this.setState({
+        returnEle: "没有许愿池物品"
+      })
+    } else {
+      //console.log(this.state.displayItems[0])
+      for (let i = 0, len = firstRenderNum; i < len; i++) {
+        //console.log('color' + getStatusColorOfStarLot(this.state.displayItems[i].status))
+        //console.log('status' + this.state.displayItems[i].status)
+        returnEle.push(
+          <DisplayItem transferItemId={this.transferItemId.bind(this, this.state.displayItems[i].id)}
+            key={this.state.displayItems[i].id}
+            statusToShow={date.format(new Date(this.state.displayItems[i].lastStatusChangeTime), 'YYYY年MM月DD日 HH:mm')}
+            statusColor={getStatusColorOfStarLot(this.state.displayItems[i].status)}
+            info={this.state.displayItems[i]} />)
+      }
+      this.setState({
+        returnEle: returnEle
+      })
+    }
   }
 
 
@@ -158,13 +245,58 @@ class AllStarLot extends React.Component {
             <div className={styles['search-detail']}>
               <span className={styles['item-title']}>明星姓名</span>
               <div className={styles['search-item-ctn']}>
-                <Input size="default"></Input>
+                <Input size="default" onChange={this.getIdolNameBySearch}></Input>
               </div>
               <span className={styles['item-title']}>买家手机号码</span>
               <div className={styles['search-item-ctn']}>
-                <Input size="default"></Input>
+                <Input size="default" onChange={this.getPhoneNumberBySearch}></Input>
               </div>
-              <Button onClick={this.getSearchResult}><Icon type="search"></Icon>搜索</Button>
+              {/* <Button onClick={this.}> */}
+              <ApolloConsumer>
+                {client => (
+                  <div>
+                    <button onClick={async () => {
+                      if (this.state.idolName && this.state.phoneNumber) {
+                        const { data } = await client.query({
+                          query: getStarLotBySearch,
+                          variables: {
+                            name: this.state.idolName,
+                            phoneNumber: this.state.phoneNumber
+                          }
+                        })
+                        this.getSearchResult(data.idolWishingWells)
+
+                      } else if (this.state.idolName) {
+                        const { data } = await client.query({
+                          query: getStarLotBySearchIdolName,
+                          variables: {
+                            name: this.state.idolName,
+                          }
+                        })
+                        this.getSearchResult(data.idolWishingWells)
+
+                      } else if (this.state.phoneNumber) {
+                        const { data } = await client.query({
+                          query: getStarLotBySearchPhoneNumber,
+                          variables: {
+                            phoneNumber: this.state.phoneNumber
+                          }
+                        })
+                        this.getSearchResult(data.idolWishingWells)
+
+                      } else {
+                        const { data } = await client.query({
+                          query: getAllStarLot
+                        })
+                        this.getSearchResult(data.idolWishingWells)
+                      }
+                    }}><Icon type="search"></Icon>搜索</button>
+
+                  </div>
+                )}
+
+              </ApolloConsumer>
+              {/* 搜索</Button> */}
             </div>
           </div>
           <div className={styles["result-ctn"]}>
@@ -186,14 +318,14 @@ class AllStarLot extends React.Component {
                   const { data } = await client.query({
                     query: getAllStarLot,
                   })
-                  console.log(data.idolWishingWells)
+                  //console.log(data.idolWishingWells)
                   this.getAllItems(data.idolWishingWells)
                   this.clearItemId()
                   let page = this.state.currentPage
                   let pageSize = pageDataItemsNum
                   let returnEle = []
                   for (let i = 0, len = (this.state.displayItems.length < page * pageSize) ? this.state.displayItems.length % pageSize : pageSize; i < len; i++) {
-                    console.log(len)
+                    //console.log(len)
                     returnEle.push(
                       <DisplayItem transferItemId={this.transferItemId.bind(this, this.state.displayItems[i + (page - 1) * pageSize].id)}
                         key={this.state.displayItems[i + (page - 1) * pageSize].id}
@@ -203,7 +335,7 @@ class AllStarLot extends React.Component {
                         info={this.state.displayItems[i + (page - 1) * pageSize]}
                       />)
                   }
-                  console.log(returnEle)
+                  //console.log(returnEle)
                   this.setState({
                     returnEle: returnEle,
                   })

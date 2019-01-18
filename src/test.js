@@ -3,7 +3,7 @@ import {
 } from 'react-apollo'
 import gql from 'graphql-tag'
 import React from 'react'
-const data = gql `
+const data = gql`
   query {
     ReturnAllThings {
       _id
@@ -15,14 +15,14 @@ const data = gql `
 import {
   Mutation
 } from 'react-apollo'
-const changeStatusMutation = gql `
+const changeStatusMutation = gql`
   mutation CHANGE($newStatus: String!, $itemId: ObjectId!) {
     changeAuctionStatus(newStatus: $newStatus , itemId: $itemId ) 
   }
 `
 // "5c02cd1f5b120f1a382e6336"
 
-const oneItemData = gql `
+const oneItemData = gql`
   query QUERY_ONE_ITEM($itemId: ObjectId!) {
     ReturnOneItem(_id: $itemId) {
       _id
@@ -37,56 +37,56 @@ class test extends React.Component {
   }
   render() {
     let input
-    return ( <
+    return (<
       div >
       <
-      Mutation mutation = {
-        changeStatusMutation
-      } > {
-        (changeAuctionStatus) => ( <
+      Mutation mutation={
+          changeStatusMutation
+        } > {
+          (changeAuctionStatus) => (<
           div >
-          <
-          form onSubmit = {
-            e => {
-              e.preventDefault()
-              console.log(input.value)
-              console.log(typeof (input.value))
-              changeAuctionStatus({
-                variables: {
-                  newStatus: input.value,
-                  itemId: "5c02cd1f5b120f1a382e6336"
+            <
+          form onSubmit={
+                e => {
+                  e.preventDefault()
+                  console.log(input.value)
+                  console.log(typeof (input.value))
+                  changeAuctionStatus({
+                    variables: {
+                      newStatus: input.value,
+                      itemId: "5c02cd1f5b120f1a382e6336"
+                    }
+                  })
+                  input.value = ""
                 }
-              })
-              input.value = ""
-            }
-          } >
-          <
-          input ref = {
-            node => {
-              input = node;
-            }
-          }
-          /> <
-          button type = "submit" > Add Todo < /button> <
+              } >
+              <
+                input ref={
+                  node => {
+                    input = node;
+                  }
+                }
+              /> <
+          button type="submit" > Add Todo < /button> <
           /form> <
           /div>
-        )
+              )
       } < /Mutation> {
-        /* <Query query={oneItemData}>
-                  {(ReturnOneItem) => {
-                    console.log(ReturnOneItem({
-                      variables: {
-                        _id: "5c02cd1f5b120f1a382e6336"
-                      }
-                    }))
-                  }}
-                </Query> */
-      } <
+                  /* <Query query={oneItemData}>
+                            {(ReturnOneItem) => {
+                              console.log(ReturnOneItem({
+                                variables: {
+                                  _id: "5c02cd1f5b120f1a382e6336"
+                                }
+                              }))
+                            }}
+                          </Query> */
+                } <
       /div>
-    )
-  }
-
-}
+              )
+            }
+          
+          }
 // class test extends React.Component {
 //   constructor(props) {
 //     super(props)
@@ -110,5 +110,5 @@ class test extends React.Component {
 // }
 
 const result = graphql(data)(test)
-
+                
 export default result

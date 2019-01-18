@@ -2,34 +2,35 @@ import React from 'react'
 
 import { message, Carousel, Modal, Button, Input } from 'antd'
 import styles from '../../style/AllLotShow.sass'
-import detailedStyles from '../../style/DetailedItem.sass'
+import detailedStyles from '../../style/DetailedItemOfStarLot.sass'
 import { graphql, Query, Mutation } from 'react-apollo'
 import gql from 'graphql-tag'
 import date from 'date-and-time'
 import { Player } from 'video-react'
+import { showChineseStatusOfStarLotAccordingString } from '../../utils/commonChange'
 import "../../../node_modules/video-react/dist/video-react.css";
 import '../../style/carousel.css'
 
 const oneItemData = gql`
   query QUERY_ONE_ITEM(  $id: ID!  ) {
-    auctionItem(where: {id: $id}) {
-      id
-      title
-      description
-      createTime
-      startingPrice
-      noBarginPrice
-      newDegree
-      photos
-      videos
-      certPhotos
-      seller {
-        id
+    idolWishingWell(where: {id: $id}) {
+      highestBidUser {
         name
         phoneNumber
       }
       status
-      lastStatusChangeTime
+      quote
+      timeToStart
+      startingPrice
+      fansChoices
+      dateTo
+      dateFrom
+      publicWelfareString
+      highestBid
+      name
+      id
+      images
+      video
       # category {
       #   id
       # }
@@ -39,39 +40,23 @@ const oneItemData = gql`
 
 const changeStatusMutation = gql`
   mutation CHANGE($id: ID!, $time: DateTime!){
-    updateAuctionItemAdmin(
+    updateIdolWishingWell(
       where: {
         id: $id,
-        status: InFirstCheck,
+        # status: Finishing,
       },
       data: {
-        status: InAuction,
+        status: Finished,
         lastStatusChangeTime: $time,
+        active: false
       }
     ) {
-      count
+      # count
+      status
     }
   }
 `
-const reportDenyMutation = gql`
-  mutation CHANGE($id: ID!, $time: DateTime!, $reason: String!){
-    updateAuctionItemAdmin(
-      where: {
-        id: $id,
-        status: InFirstCheck,
-      },
-      data: {
-        status: Ended,
-        endedReason: FirstCheckFailed,
-        endedTime: $time,
-        lastStatusChangeTime: $time,
-        firstCheckFailReason: $reason
-      }
-    ) {
-      count
-    }
-  }
-`
+
 
 // ❌ use apolloFetch
 // import { createApolloFetch } from 'apollo-fetch'
@@ -173,7 +158,7 @@ class DetailedItem extends React.Component {
 
         </Modal>
 
-        <Modal
+        {/* <Modal
           title="输入拒绝理由"
           visible={this.state.reasonVisible}
           onOk={this.handleReasonOk}
@@ -182,21 +167,21 @@ class DetailedItem extends React.Component {
           footer={null}
         >
           <Mutation mutation={reportDenyMutation}>
-            {(updateAuctionItemAdmin) => (
+            {(updateIdolWishingWell) => (
               <div className={detailedStyles['button-right']}>
                 <Input onChange={that.getDenyReason} style={{ marginBottom: "10px" }} />
                 <Button type="primary" style={{ marginRight: "11px" }} disabled={this.state.buttonDisabled} onClick={
                   async e => {
                     e.preventDefault()
                     if (that.state.firstCheckFailReason.length > 0) {
-                      const { data } = await updateAuctionItemAdmin({
+                      const { data } = await updateIdolWishingWell({
                         variables: {
                           id: this.props.id,
                           time: new Date(),
                           reason: that.state.firstCheckFailReason
                         }
                       })
-                      if (data.updateAuctionItemAdmin.count == 1) {
+                      if (data.updateIdolWishingWell.count == 1) {
                         that.setState({
                           buttonDisabled: true
                         })
@@ -228,7 +213,7 @@ class DetailedItem extends React.Component {
               </div>
             )}
           </Mutation>
-        </Modal>
+        </Modal> */}
         <Query query={oneItemData} variables={{ id: this.props.id }} >
           {({ loading, error, data }) => {
             console.log("ok")
@@ -239,118 +224,141 @@ class DetailedItem extends React.Component {
                 <div className={detailedStyles["left-bar"]}>
                   <div className={detailedStyles["left-top-bar"]}>
                     <Carousel autoplay style={{ backgroundColor: "wheat" }}>
-                      {data.auctionItem.videos.map((i) => {
+
+
+                      <div>
+                        <p className={detailedStyles['click-to-video-text']} >点击播放视频</p>
+                        <img className={detailedStyles['images']} src={data.idolWishingWell.images[0]} onClick={(e) => this.showVideo(data.idolWishingWell.video, i)} />
+                      </div>
+
+                      {data.idolWishingWell.images.map((i) => {
                         return (
-                          <div>
-                            <p className={detailedStyles['click-to-video-text']} >点击播放视频</p>
-                            <img className={detailedStyles['photos']} src={data.auctionItem.photos[0]} onClick={(e) => this.showVideo(data.auctionItem.photos[1], i)} />
-                          </div>
-                        )
-                      })}
-                      {data.auctionItem.photos.map((i) => {
-                        return (
-                          <div className={detailedStyles["photos-ctn"]}>
-                            <img className={detailedStyles['photos']} src={i} onClick={(e) => this.showBigPhoto(i)} />
+                          <div className={detailedStyles["images-ctn"]}>
+                            <img className={detailedStyles['images']} src={i} onClick={(e) => this.showBigPhoto(i)} />
                           </div>
                         )
                       })}
 
-                      {/* <div><h3>1</h3></div>
-                      <div><h3>2</h3></div>
-                      <div><h3>3</h3></div>
-                      <div><h3>4</h3></div> */}
                     </Carousel>
                   </div>
                   <div className={detailedStyles["left-bottom-bar"]}>
-                    <h3 className={detailedStyles["ctn-title"]}>卖家资料</h3>
-                    <p>卖 家 ：{data.auctionItem.seller.name}</p>
-                    <p>联系方式 {data.auctionItem.seller.phoneNumber}</p>
+                    <h3>交易状态</h3>
+                    <p >{showChineseStatusOfStarLotAccordingString(data.idolWishingWell.status)}</p>
                   </div>
                 </div>
                 <div className={detailedStyles["right-bar"]}>
-                  <h3 className={detailedStyles["ctn-title"]}>拍品资料</h3>
+                  <h3 className={detailedStyles["ctn-title"]}>买家资料</h3>
+                  {!data.idolWishingWell.highestBidUser ? (
+                    <div>
+                      <div className={detailedStyles['intro-line']}>
+                        <p className={detailedStyles['intro-line-title']}>买家姓名：</p>
+                        <p className={detailedStyles['intro-line-text']}>暂无</p>
+                      </div>
+
+                      <div className={detailedStyles['intro-line']}>
+                        <p className={detailedStyles['intro-line-title']}>联系方式：</p>
+                        <p className={detailedStyles['intro-line-text']}>暂无</p>
+                      </div>
+                      <div className={detailedStyles['intro-line']}>
+                        <p className={detailedStyles['intro-line-title']}>交易价格：</p>
+                        <p className={detailedStyles['intro-line-text']}>暂无</p>
+                      </div>
+                    </div>
+                  ) : (
+                      <div>
+                        <div className={detailedStyles['intro-line']}>
+                          <p className={detailedStyles['intro-line-title']}>买家姓名：</p>
+                          <p className={detailedStyles['intro-line-text']}>{data.idolWishingWell.highestBidUser.name}</p>
+                        </div>
+                        <div className={detailedStyles['intro-line']}>
+                          <p className={detailedStyles['intro-line-title']}>联系方式：</p>
+                          <p className={detailedStyles['intro-line-text']}>{data.idolWishingWell.highestBidUser.phoneNumber}</p>
+                        </div>
+                        <div className={detailedStyles['intro-line']}>
+                          <p className={detailedStyles['intro-line-title']}>交易价格：</p>
+                          <p className={detailedStyles['intro-line-text']}>¥ {data.idolWishingWell.highestBid}</p>
+                        </div>
+                      </div>
+                    )}
+
+                  <h3 className={detailedStyles["ctn-title"]}>许愿池资料</h3>
                   <div className={detailedStyles["right-top-bar"]}>
                     <div className={detailedStyles["right-top-left-bar"]}>
                       <div className={detailedStyles['intro-line']}>
-                        <p className={detailedStyles['intro-line-title']}>拍品名称</p><p className={detailedStyles['intro-line-text']}>{data.auctionItem.title}</p>
+                        <p className={detailedStyles['intro-line-title']}>爱豆姓名</p><p className={detailedStyles['intro-line-text']}>{data.idolWishingWell.name}</p>
                       </div>
                       <div className={detailedStyles['intro-line']}>
-                        <p className={detailedStyles['intro-line-title']}>拍品介绍 </p><p className={detailedStyles['intro-line-text']}>{data.auctionItem.description}</p>
+                        <p className={detailedStyles['intro-line-title']}>爱豆寄语 </p><p className={detailedStyles['intro-line-text']}>{data.idolWishingWell.quote}</p>
                       </div>
                       <div className={detailedStyles['intro-line']}>
-                        <p className={detailedStyles['intro-line-title']}>提报时间</p><p className={detailedStyles['intro-line-text']}>{date.format(new Date(data.auctionItem.createTime), 'YYYY年MM月DD日 HH:mm')}</p>
-                      </div>
-                    </div>
-                    <div className={detailedStyles["right-top-right-bar"]}>
-                      <div className={detailedStyles['intro-line']}>
-                        <p className={detailedStyles['intro-line-title']}>一口价</p><p className={detailedStyles['intro-line-text']}>¥ {data.auctionItem.noBarginPrice}</p>
+                        <p className={detailedStyles['intro-line-title']}>竞拍开始时间</p><p className={detailedStyles['intro-line-text']}>{date.format(new Date(data.idolWishingWell.timeToStart), 'YYYY年MM月DD日 HH:mm:ss')}</p>
                       </div>
                       <div className={detailedStyles['intro-line']}>
-                        <p className={detailedStyles['intro-line-title']}>起拍价</p><p className={detailedStyles['intro-line-text']}>¥ {data.auctionItem.startingPrice}</p>
-                      </div>
-                      <div className={detailedStyles['intro-line']}>
-                        <p className={detailedStyles['intro-line-title']}>新度</p><p className={detailedStyles['intro-line-text']}>{data.auctionItem.newDegree}</p>
+                        <p className={detailedStyles['intro-line-title']}>起拍价</p><p className={detailedStyles['intro-line-text']}>¥ {data.idolWishingWell.startingPrice}</p>
                       </div>
                     </div>
                   </div>
                   <div className={detailedStyles['right-bottom-bar']} >
                     <div className={detailedStyles['intro-line']}>
-                      <p className={detailedStyles['intro-line-title']}>拍品保障</p>
+                      <p className={detailedStyles['intro-line-title']}>许愿内容</p>
                       <div className={detailedStyles['cert-photo-ctn']}>
-                        {data.auctionItem.certPhotos.map((i) => {
-                          return <img className={detailedStyles['cert-photo']} src={i} onClick={(e) => this.showBigPhoto(i)} />
+                        {data.idolWishingWell.fansChoices.map((i, index) => {
+                          return <p>{index + 1}. {i}</p>
                         })}
                       </div>
                     </div>
                   </div>
-                  <div className={detailedStyles['button-ctn']}>
-                    <Mutation mutation={changeStatusMutation}>
-                      {(updateAuctionItemAdmin) => (
-                        <div className={detailedStyles['button-left']}>
-                          <Button type="primary" disabled={this.state.buttonDisabled} onClick={
-                            async e => {
-                              console.log("hello")
-                              e.preventDefault()
-                              const { data } = await updateAuctionItemAdmin({
-                                variables: {
-                                  id: this.props.id,
-                                  time: new Date(),
-                                }
-                              })
-                              console.log(data)
-                              if (data.updateAuctionItemAdmin.status == "InAuction") {
-                                this.setState({
-                                  buttonDisabled: true
-                                })
-                                message.success('提报申请审核通过！');
-                              } else {
-                                message.error('操作失败！');
-                                this.setState({
-                                  buttonDisabled: true
-                                })
-                              }
-                            }}>
-                            审核通过
-                        </Button>
-                        </div>
-                      )}
-                    </Mutation>
-                    <Mutation mutation={reportDenyMutation}>
-                      {(updateAuctionItemAdmin) => (
-                        <div className={detailedStyles['button-right']}>
-                          <Button disabled={this.state.buttonDisabled} onClick={
-                            () => {
-                              this.setState({
-                                reasonVisible: true
-                              })
-                            }
-                          }>
-                            审核不通过
-                        </Button>
-                        </div>
-                      )}
-                    </Mutation>
+                  <div className={detailedStyles['intro-line']}>
+                    <p className={detailedStyles['intro-line-title']}>圆梦时间</p><p className={detailedStyles['intro-line-text']}>{date.format(new Date(data.idolWishingWell.dateFrom), 'YYYY.MM.DD')} - {date.format(new Date(data.idolWishingWell.dateTo), 'YYYY.MM.DD')}</p>
                   </div>
+                  <div className={detailedStyles['right-bottom-bar']} >
+                    <div className={detailedStyles['intro-line']}>
+                      <p className={detailedStyles['intro-line-title']}>公益内容</p>
+                      <div className={detailedStyles['cert-photo-ctn']}>
+                        {data.idolWishingWell.publicWelfareString}
+                      </div>
+                    </div>
+                  </div>
+
+                  {data.idolWishingWell.status == "Finishing" ? (
+                    <div className={detailedStyles['button-ctn']}>
+                      <Mutation mutation={changeStatusMutation}>
+                        {(updateIdolWishingWell) => (
+                          <div className={detailedStyles['button-left']}>
+                            <Button type="primary" disabled={this.state.buttonDisabled} onClick={
+                              async e => {
+                                e.preventDefault()
+                                const { data } = await updateIdolWishingWell({
+                                  variables: {
+                                    id: this.props.id,
+                                    time: new Date(),
+                                  }
+                                })
+                                // console.log(data)
+                                if (data.updateIdolWishingWell.status == "Finished") {
+                                  this.setState({
+                                    buttonDisabled: true
+                                  })
+                                  message.success('成功完成交易！');
+                                } else {
+                                  message.error('操作失败！请刷新后重试');
+                                  this.setState({
+                                    buttonDisabled: true
+                                  })
+                                }
+                              }}>
+                              完成交易
+                            </Button>
+                          </div>
+                        )}
+                      </Mutation>
+                    </div>
+                  ) : (
+                      <div></div>
+                    )
+
+                  }
+
 
                 </div>
               </div >
