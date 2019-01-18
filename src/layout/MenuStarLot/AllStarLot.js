@@ -2,7 +2,7 @@ import React from 'react'
 import { DatePicker, Input, Select, Button, Icon, Pagination } from 'antd'
 import { graphql, Query } from 'react-apollo'
 import gql from 'graphql-tag'
-import { getStatusColorOfStarLot } from '../../utils/commonChange'
+import { getStatusColorOfStarLot, showChineseStatusOfStarLotAccordingString } from '../../utils/commonChange'
 import styles from '../../style/AllLotShow.sass'
 import { ApolloConsumer } from 'react-apollo'
 import 'babel-polyfill';
@@ -38,29 +38,29 @@ const getAllStarLot = gql`
     }
   }
 `
-const getStarLotBySearch = gql`
-  query idolWishingWells($name: String, $phoneNumber: String){
-    idolWishingWells(
-      where: {
-        name: $name
-        highestBidUser: {
-         phoneNumber: $phoneNumber
+
+function foo(obj) {
+  let a = `where: ${JSON.stringify(obj).replace(/"(\w+?)":/g, "$1:")}`;
+  return `
+    query {
+      idolWishingWells(
+        ${a}
+      ) {
+        name
+        images
+        status
+        lastStatusChangeTime
+        id
+        highestBid
+        highestBidUser {
+          name
+          phoneNumber
         }
       }
-    ) {
-      name
-      images
-      status
-      lastStatusChangeTime
-      id
-      highestBid
-      highestBidUser {
-        name
-        phoneNumber
-      }
     }
-  }
-`
+  `
+}
+
 const getStarLotBySearchIdolName = gql`
   query idolWishingWells($name: String ){
     idolWishingWells(
@@ -162,7 +162,7 @@ class AllStarLot extends React.Component {
       returnEle.push(
         <DisplayItem transferItemId={this.transferItemId.bind(this, this.state.displayItems[i + (page - 1) * pageSize].id)}
           key={this.state.displayItems[i + (page - 1) * pageSize].id}
-          statusToShow={date.format(new Date(this.state.displayItems[i + (page - 1) * pageSize].lastStatusChangeTime), 'YYYY年MM月DD日 HH:mm')}
+          statusToShow={showChineseStatusOfStarLotAccordingString(this.state.DisplayItems[i].status)}
           statusColor={getStatusColorOfStarLot(this.state.displayItems[i + (page - 1) * pageSize].status)}
           info={this.state.displayItems[i + (page - 1) * pageSize]}
         />)
@@ -194,7 +194,7 @@ class AllStarLot extends React.Component {
         returnEle.push(
           <DisplayItem transferItemId={this.transferItemId.bind(this, this.state.displayItems[i].id)}
             key={this.state.displayItems[i].id}
-            statusToShow={date.format(new Date(this.state.displayItems[i].lastStatusChangeTime), 'YYYY年MM月DD日 HH:mm')}
+            statusToShow={showChineseStatusOfStarLotAccordingString(this.state.displayItems[i].status)}
             statusColor={getStatusColorOfStarLot(this.state.displayItems[i].status)}
             info={this.state.displayItems[i]} />)
       }
@@ -215,7 +215,7 @@ class AllStarLot extends React.Component {
     if (firstRenderNum === 0) {
       //console.log("ddd")
       this.setState({
-        returnEle: "没有许愿池物品"
+        returnEle: "没有符合的许愿池物品"
       })
     } else {
       //console.log(this.state.displayItems[0])
@@ -225,7 +225,7 @@ class AllStarLot extends React.Component {
         returnEle.push(
           <DisplayItem transferItemId={this.transferItemId.bind(this, this.state.displayItems[i].id)}
             key={this.state.displayItems[i].id}
-            statusToShow={date.format(new Date(this.state.displayItems[i].lastStatusChangeTime), 'YYYY年MM月DD日 HH:mm')}
+            statusToShow={showChineseStatusOfStarLotAccordingString(this.state.displayItems[i].status)}
             statusColor={getStatusColorOfStarLot(this.state.displayItems[i].status)}
             info={this.state.displayItems[i]} />)
       }
@@ -256,41 +256,19 @@ class AllStarLot extends React.Component {
                 {client => (
                   <div>
                     <button onClick={async () => {
-                      if (this.state.idolName && this.state.phoneNumber) {
-                        const { data } = await client.query({
-                          query: getStarLotBySearch,
-                          variables: {
-                            name: this.state.idolName,
-                            phoneNumber: this.state.phoneNumber
-                          }
-                        })
-                        this.getSearchResult(data.idolWishingWells)
-
-                      } else if (this.state.idolName) {
-                        const { data } = await client.query({
-                          query: getStarLotBySearchIdolName,
-                          variables: {
-                            name: this.state.idolName,
-                          }
-                        })
-                        this.getSearchResult(data.idolWishingWells)
-
-                      } else if (this.state.phoneNumber) {
-                        const { data } = await client.query({
-                          query: getStarLotBySearchPhoneNumber,
-                          variables: {
-                            phoneNumber: this.state.phoneNumber
-                          }
-                        })
-                        this.getSearchResult(data.idolWishingWells)
-
-                      } else {
-                        const { data } = await client.query({
-                          query: getAllStarLot
-                        })
-                        this.getSearchResult(data.idolWishingWells)
+                      let obj = {}
+                      if (this.state.idolName) obj.name = this.state.idolName
+                      if (this.state.phoneNumber) obj.highestBidUser = {
+                        phoneNumber: this.state.phoneNumber
                       }
-                    }}><Icon type="search"></Icon>搜索</button>
+                      const { data } = await client.query({
+                        query: gql(
+                          foo(obj)
+                        )
+                      })
+                      this.getSearchResult(data.idolWishingWells)
+                    }
+                    } > <Icon type="search"></Icon>搜索</button>
 
                   </div>
                 )}
@@ -329,7 +307,7 @@ class AllStarLot extends React.Component {
                     returnEle.push(
                       <DisplayItem transferItemId={this.transferItemId.bind(this, this.state.displayItems[i + (page - 1) * pageSize].id)}
                         key={this.state.displayItems[i + (page - 1) * pageSize].id}
-                        statusToShow={showChineseStatusAccordingString(this.state.displayItems[i + (page - 1) * pageSize].status)}
+                        statusToShow={showChineseStatusOfStarLotAccordingString(this.state.displayItems[i + (page - 1) * pageSize].status)}
                         statusColor={getStatusColorOfStarLot(this.state.displayItems[i + (page - 1) * pageSize].status)}
 
                         info={this.state.displayItems[i + (page - 1) * pageSize]}
@@ -338,8 +316,10 @@ class AllStarLot extends React.Component {
                   //console.log(returnEle)
                   this.setState({
                     returnEle: returnEle,
+                    phoneNumber: null,
+                    idolName: ""
                   })
-                }}>拍品提报审核</span>->拍品详情</p>
+                }}>许愿池</span>->详情</p>
               <div className={styles["result-ctn"]}>
                 <div className={styles["result-ctn-flex"]}>
                   <DetailedItem id={this.state.currentItemId} />

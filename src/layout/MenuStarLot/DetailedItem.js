@@ -224,8 +224,6 @@ class DetailedItem extends React.Component {
                 <div className={detailedStyles["left-bar"]}>
                   <div className={detailedStyles["left-top-bar"]}>
                     <Carousel autoplay style={{ backgroundColor: "wheat" }}>
-
-
                       <div>
                         <p className={detailedStyles['click-to-video-text']} >点击播放视频</p>
                         <img className={detailedStyles['images']} src={data.idolWishingWell.images[0]} onClick={(e) => this.showVideo(data.idolWishingWell.video, i)} />
