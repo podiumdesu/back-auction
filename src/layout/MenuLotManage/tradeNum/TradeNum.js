@@ -1,5 +1,5 @@
 import React from 'react'
-import { showCategoryAccordingNum, showChineseStatusAccordingString } from '../../../utils/commonChange'
+import { showCategoryAccordingNum, showChineseStatusAccordingString, getUniqueCategoryName } from '../../../utils/commonChange'
 import gql from 'graphql-tag'
 import { Query } from 'react-apollo'
 import styles from '../../../style/tradeNum.sass'
@@ -13,6 +13,9 @@ const GetAllItems = gql`
       seller {
         id
         phoneNumber
+      }
+      category {
+        title
       }
       createTime
       lastStatusChangeTime
@@ -67,21 +70,29 @@ const tradeNum = () => (
       //   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       //   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       // ]
+      const categoryName = getUniqueCategoryName(data.auctionItems)
+      const categoryNameObj = {}
       for (let i = 0, len = data.auctionItems.length; i < len; i++) {
         itemsWithStatus[data.auctionItems[i].status]++;
+        if (categoryNameObj[data.auctionItems[i].category.title]) {
+          categoryNameObj[data.auctionItems[i].category.title]++
+        } else {
+          categoryNameObj[data.auctionItems[i].category.title] = 1
+        }
         // categoryIdArr[parseInt(data.auctionItems[i].categoryId)]++;
       }
+      console.log(categoryNameObj)
 
       for (let i = 0; i < 10; i++) {
         statusReturnEle.push(
           <div key={i}><p className={styles['info-of-line']}>{showChineseStatusAccordingString(statusString[i])}的拍品</p> ：{itemsWithStatus[statusString[i]]} 件</div>
         )
       }
-      // for (let i = 0; i < 3; i++) {
-      //   categoryReturnEle.push(
-      //     <div key={i}>{showCategoryAccordingNum(i + 1)}： {categoryIdArr[i]}件</div>
-      //   )
-      // }
+      for (let i = 0; i < categoryName.length; i++) {
+        categoryReturnEle.push(
+          <div key={i}><p className={styles['info-of-line']}>{categoryName[i]}</p>： {categoryNameObj[categoryName[i]]}件</div>
+        )
+      }
       return (
         <div>
           <div className={styles['page-container']}>
@@ -91,7 +102,7 @@ const tradeNum = () => (
             </div>
             <div className={styles['container']}>
               <h3 className={styles['title']}> 拍品分类统计</h3>
-              {/* {categoryReturnEle} */}
+              {categoryReturnEle}
             </div>
 
           </div>

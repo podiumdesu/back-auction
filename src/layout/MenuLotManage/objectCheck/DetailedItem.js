@@ -45,26 +45,27 @@ const oneItemData = gql`
 // 确认收货
 const getItemsMutation = gql`
   mutation CHANGE($id: ID!, $time: DateTime!){
-    updateAuctionItemAdmin(
+    updateAuctionItem(
       where: {
         id: $id,
-        status: TransportingToPlatform
+        # status: TransportingToPlatform
       },
       data: {
         status: InSecondCheck,
         lastStatusChangeTime: $time,
       }
     ) {
-      count
+      status
+      # count
     }
   }
 `
 const auctionCheckPassMutation = gql`
   mutation CHANGE($id: ID!, $time: DateTime!){
-    updateAuctionItemAdmin(
+    updateAuctionItem(
       where: {
         id: $id,
-        status: InSecondCheck,
+        # status: InSecondCheck,
       },
       data: {
         status: PlatformShipping,
@@ -72,17 +73,17 @@ const auctionCheckPassMutation = gql`
         extraStatus: PlatformShippingBack   # 此处请注意在平台发货后将此处删除
       }
     ) {
-      count
+      status
     }
   }
 `
 
 const auctionCheckDenyMutation = gql`
   mutation CHANGE($id: ID!, $time: DateTime!, $reason: String!){
-    updateAuctionItemAdmin(
+    updateAuctionItem(
       where: {
         id: $id,
-        status: InSecondCheck,
+        # status: InSecondCheck,
       },
       data: {
         status: Ended,
@@ -93,7 +94,7 @@ const auctionCheckDenyMutation = gql`
         secondCheckFailReason: $reason,
       }
     ) {
-      count
+      status
     }
   }
 `
@@ -214,7 +215,7 @@ class DetailedItem extends React.Component {
           footer={null}
         >
           <Mutation mutation={auctionCheckDenyMutation}>
-            {(updateAuctionItemAdmin) => (
+            {(updateAuctionItem) => (
               <div className={detailedStyles['button-right']}>
                 <Input onChange={that.getDenyReason} style={{ marginBottom: "10px" }} />
                 <Button type="primary" style={{ marginRight: "11px" }} disabled={this.state.buttonDisabled} onClick={
@@ -222,7 +223,7 @@ class DetailedItem extends React.Component {
                     console.log("hello")
                     e.preventDefault()
                     if (this.state.secondCheckFailReason.length > 0) {
-                      const { data } = await updateAuctionItemAdmin({
+                      const { data } = await updateAuctionItem({
                         variables: {
                           id: this.props.id,
                           time: new Date(),
@@ -230,7 +231,7 @@ class DetailedItem extends React.Component {
                         }
                       })
                       console.log(data)
-                      if (data.updateAuctionItemAdmin.count == 1) {
+                      if (data.updateAuctionItem.count == 1) {
                         that.setState({
                           buttonDisabled: true
                         })
@@ -340,18 +341,20 @@ class DetailedItem extends React.Component {
                   <div className={detailedStyles['button-ctn']}>
                     {data.auctionItem.status === "TransportingToPlatform" && !(this.state.auctionStatus === "InSecondCheck") ?
                       <Mutation mutation={getItemsMutation}>
-                        {(updateAuctionItemAdmin) => (
+                        {(updateAuctionItem) => (
                           <div className={detailedStyles['button-left']}>
                             <Button type="primary" onClick={
                               async e => {
                                 e.preventDefault()
-                                const { data } = await updateAuctionItemAdmin({
+                                const { data } = await updateAuctionItem({
                                   variables: {
                                     id: this.props.id,
                                     time: new Date(),
                                   }
                                 })
-                                if (data.updateAuctionItemAdmin.count == 1) {
+                                // if (data.updateAuctionItem.count == 1) {
+
+                                if (data.updateAuctionItem.status == "InSecondCheck") {
                                   that.setState({
                                     auctionStatus: "InSecondCheck"
                                   })
@@ -373,20 +376,21 @@ class DetailedItem extends React.Component {
                       <div>
 
                         <Mutation mutation={auctionCheckPassMutation}>
-                          {(updateAuctionItemAdmin) => (
+                          {(updateAuctionItem) => (
                             <div className={detailedStyles['button-left']}>
                               <Button disabled={this.state.buttonDisabled} type="primary" onClick={
                                 async e => {
                                   console.log("hello")
                                   e.preventDefault()
-                                  const { data } = await updateAuctionItemAdmin({
+                                  const { data } = await updateAuctionItem({
                                     variables: {
                                       id: this.props.id,
                                       time: new Date(),
                                     }
                                   })
                                   console.log(data)
-                                  if (data.updateManyAuctionItems.count == 1) {
+                                  // if (data.updateManyAuctionItems.count == 1) {
+                                  if (data.updateAuctionItem.status == "PlatformShipping") {
                                     message.success('实物审核通过 操作成功！请尽快发货给买家');
                                     that.setState({
                                       buttonDisabled: true

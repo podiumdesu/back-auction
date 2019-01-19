@@ -80,11 +80,21 @@ function getStatusColorOfStarLot(status) {
   return changeSet[status] ? changeSet[status] : 'rgba(0,0,0)'
 
 }
+
+function getUniqueCategoryName(items) {
+  return items.reduce((init, current) => {
+    if (init.indexOf(current.category.title) < 0) {
+      init.push(current.category.title)
+    }
+    return init
+  }, []);
+}
 export {
   showCategoryAccordingNum,
   showChineseStatusAccordingString,
   showChineseStatusOfStarLotAccordingString,
   getStatusColor,
   getStatusColorOfStarLot,
-  showShippingStatus
+  showShippingStatus,
+  getUniqueCategoryName
 }
