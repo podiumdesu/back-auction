@@ -117,7 +117,7 @@ class Main extends React.Component {
       loginInfo: info,
       login: info.success
     })
-    setCookie("login", true, 2);
+    setCookie("login", info.success, 2);
     setCookie("token", info.token, 2);
   }
   render() {

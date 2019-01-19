@@ -48,15 +48,15 @@ const getItemsMutation = gql`
     updateAuctionItem(
       where: {
         id: $id,
-        # status: TransportingToPlatform
+        status: TransportingToPlatform
       },
       data: {
         status: InSecondCheck,
         lastStatusChangeTime: $time,
       }
     ) {
-      status
-      # count
+      # status
+      count
     }
   }
 `
@@ -73,7 +73,8 @@ const auctionCheckPassMutation = gql`
         extraStatus: PlatformShippingBack   # 此处请注意在平台发货后将此处删除
       }
     ) {
-      status
+      # status
+      count
     }
   }
 `
@@ -94,7 +95,8 @@ const auctionCheckDenyMutation = gql`
         secondCheckFailReason: $reason,
       }
     ) {
-      status
+      # status
+      count
     }
   }
 `
@@ -354,7 +356,7 @@ class DetailedItem extends React.Component {
                                 })
                                 // if (data.updateAuctionItem.count == 1) {
 
-                                if (data.updateAuctionItem.status == "InSecondCheck") {
+                                if (data.updateAuctionItem.count == 1) {
                                   that.setState({
                                     auctionStatus: "InSecondCheck"
                                   })
@@ -389,8 +391,8 @@ class DetailedItem extends React.Component {
                                     }
                                   })
                                   console.log(data)
-                                  // if (data.updateManyAuctionItems.count == 1) {
-                                  if (data.updateAuctionItem.status == "PlatformShipping") {
+                                  if (data.updateAuctionItem.count == 1) {
+                                    // if (data.updateAuctionItem.status == "PlatformShipping") {
                                     message.success('实物审核通过 操作成功！请尽快发货给买家');
                                     that.setState({
                                       buttonDisabled: true

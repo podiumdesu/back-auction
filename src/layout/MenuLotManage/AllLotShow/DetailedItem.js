@@ -318,7 +318,8 @@ class DetailedItem extends React.Component {
                                 }
                               })
                               console.log(data)
-                              if (data.updateAuctionItem.status == "InAuction") {
+                              // if (data.updateAuctionItem.status == "InAuction") {
+                              if (data.updateAuctionItem.count == 1) {
                                 this.setState({
                                   buttonDisabled: true
                                 })
