@@ -31,12 +31,12 @@ class LotManage extends React.Component {
                   拍品提报审核
               </Link>
               </Menu.Item>
-              <Menu.Item key="online">
+              {/* <Menu.Item key="online">
                 <Link to={`${this.props.match.path}/online-lots`}>
                   <Icon type="shop" />
                   已上线的拍品
               </Link>
-              </Menu.Item>
+              </Menu.Item> */}
               <Menu.Item key="audit">
                 <Link to={`${this.props.match.path}/object-check`}>
                   <Icon type="eye" />
