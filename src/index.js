@@ -83,13 +83,15 @@ import UserManage from './layout/Menu/UserManage/index'
 import gql from 'graphql-tag'
 class Main extends React.Component {
   constructor(props) {
+    let temp = getCookie("login") ? JSON.parse(getCookie("login")) : false
     super(props)
     this.state = {
       collapsed: false,
 
-      login: false,
+      login: temp,
       loginInfo: null
     }
+    console.log("cons" + this.state.login)
     this.toggle = this.toggle.bind(this)
 
     this.transferLoginInfo = this.transferLoginInfo.bind(this)
@@ -117,13 +119,15 @@ class Main extends React.Component {
       loginInfo: info,
       login: info.success
     })
+    console.log("login" + info.success)
     setCookie("login", info.success, 2);
     setCookie("token", info.token, 2);
   }
   render() {
+    // let cookieLogin = (getCookie("login") ? JSON.parse(getCookie("login")) : false)
     return (
       <Router>
-        {(this.state.login || getCookie("login")) ? (
+        {(this.state.login || getCookie("login") === "true") ? (
           <Layout style={{ height: "100%" }}>
             <Sider
               trigger={null}
