@@ -25,7 +25,6 @@ import { createHttpLink } from 'apollo-link-http';
 // solve 400
 import Login from './components/Login'
 import { onError } from 'apollo-link-error'
-import Particles from 'react-particles-js'
 const errorLink = onError(({ graphQLErrors }) => {
   if (graphQLErrors) graphQLErrors.map(({ message }) => console.log(message))
 })
