@@ -4,6 +4,7 @@
 .LSOverride
 /node_modules
 /dist
+/src/config.js
 .cache/
 # Icon must end with two \r
 Icon

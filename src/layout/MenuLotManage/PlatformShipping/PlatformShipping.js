@@ -162,7 +162,6 @@ class PlatformShipping extends React.Component {
     this.setState({
       currentItemId: ""
     })
-
   }
 
   transferItemId(itemId) {

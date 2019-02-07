@@ -20,8 +20,7 @@ module.exports = {
     chunkFilename: 'static/js/[id].chunk.js',
   },
   module: {
-    loaders: [
-      {
+    loaders: [{
         test: /\.html$/,
         loader: 'html-withimg-loader',
       },
@@ -63,7 +62,9 @@ module.exports = {
       },
     ],
   },
-
+  externals: {
+    'ali-oss': 'ali-oss'
+  },
   devServer: {
     hot: true,
     historyApiFallback: true,

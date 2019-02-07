@@ -28,13 +28,33 @@ const oneItemData = gql`
         id
         name
         phoneNumber
+        addresses {
+          id
+          name
+          phone
+          province
+          district
+          city
+          detail
+        }
       }
       secondCheckFailReason
       status
       lastStatusChangeTime
-      # category {
-      #   id
-      # }
+      
+      highestBidUser {
+        name
+        phoneNumber
+        addresses {
+          id
+          name
+          phone
+          province
+          district
+          city
+          detail
+        }
+      }
     }
   }
 `
@@ -183,6 +203,7 @@ class DetailedItem extends React.Component {
     })
   }
   render() {
+    // console.log(data.auctionItem)
     const ModalThings = !this.state.showVideo ? (
       <div className={detailedStyles['bigPhotos-ctn']}>
         <img className={detailedStyles["bigPhotos"]} src={this.state.showBigPhotoPath} alt="图片" />
@@ -317,9 +338,11 @@ class DetailedItem extends React.Component {
         </Modal>
         <Query query={oneItemData} variables={{ id: this.props.id }} >
           {({ loading, error, data }) => {
-            console.log("query ok")
+            console.log("query odddd")
             if (loading) return <div>loading</div>
             if (error) return <div>`Error!: ${error}`</div>
+            console.log("hello")
+            console.log(data.auctionItem.seller)
             return (
               <div className={detailedStyles["item-detail-ctn"]} >
                 <div className={detailedStyles["left-bar"]}>
@@ -361,13 +384,13 @@ class DetailedItem extends React.Component {
                       <div className={detailedStyles['right-bottom-bar']} >
                         <h3 className={detailedStyles["ctn-title"]}>卖家资料（审核不通过，退货给卖家）</h3>
                         <div className={detailedStyles['intro-line']}>
-                          <p className={detailedStyles['intro-line-title']}>收货人姓名</p><p className={detailedStyles['intro-line-text']}> 猪猪柳</p>
+                          <p className={detailedStyles['intro-line-title']}>收货人姓名 </p><p className={detailedStyles['intro-line-text']}>{data.auctionItem.seller.addresses[0].name}</p>
                         </div>
                         <div className={detailedStyles['intro-line']}>
-                          <p className={detailedStyles['intro-line-title']}>联系电话</p><p className={detailedStyles['intro-line-text']}> 13524452340</p>
+                          <p className={detailedStyles['intro-line-title']}>联系电话 </p><p className={detailedStyles['intro-line-text']}>{data.auctionItem.seller.addresses[0].phone}</p>
                         </div>
                         <div className={detailedStyles['intro-line']}>
-                          <p className={detailedStyles['intro-line-title']}>收货地址</p><p className={detailedStyles['intro-line-text']}> 湖北省武汉市华中科技大学主校区沁苑东九舍</p>
+                          <p className={detailedStyles['intro-line-title']}>收货地址 </p><p className={detailedStyles['intro-line-text']}>{data.auctionItem.seller.addresses[0].province}{data.auctionItem.seller.addresses[0].city}{data.auctionItem.seller.addresses[0].distinct}{data.auctionItem.seller.addresses[0].detail}</p>
                         </div>
                         {/* <div className={detailedStyles['intro-line']}>
                       <p className={detailedStyles['intro-line-title']}>联系电话</p><p className={detailedStyles['intro-line-text']}> 13524452340</p>
@@ -377,13 +400,13 @@ class DetailedItem extends React.Component {
                       <div className={detailedStyles['right-bottom-bar']} >
                         <h3 className={detailedStyles["ctn-title"]}>买家资料（审核通过，发货给买家）</h3>
                         <div className={detailedStyles['intro-line']}>
-                          <p className={detailedStyles['intro-line-title']}>收货人姓名</p><p className={detailedStyles['intro-line-text']}> 桃桃</p>
+                          <p className={detailedStyles['intro-line-title']}>收货人姓名</p><p className={detailedStyles['intro-line-text']}> {data.auctionItem.highestBidUser.addresses[0].name}</p>
                         </div>
                         <div className={detailedStyles['intro-line']}>
-                          <p className={detailedStyles['intro-line-title']}>联系电话</p><p className={detailedStyles['intro-line-text']}> 13524452340</p>
+                          <p className={detailedStyles['intro-line-title']}>联系电话</p><p className={detailedStyles['intro-line-text']}> {data.auctionItem.highestBidUser.addresses[0].phone}</p>
                         </div>
                         <div className={detailedStyles['intro-line']}>
-                          <p className={detailedStyles['intro-line-title']}>收货地址</p><p className={detailedStyles['intro-line-text']}> 湖北省武汉市华中科技大学主校区沁苑东九舍</p>
+                          <p className={detailedStyles['intro-line-title']}>收货地址</p><p className={detailedStyles['intro-line-text']}> {data.auctionItem.highestBidUser.addresses[0].province}{data.auctionItem.highestBidUser.addresses[0].city}{data.auctionItem.highestBidUser.addresses[0].distinct}{data.auctionItem.highestBidUser.addresses[0].detail}</p>
                         </div>
                         {/* <div className={detailedStyles['intro-line']}>
                       <p className={detailedStyles['intro-line-title']}>联系电话</p><p className={detailedStyles['intro-line-text']}> 13524452340</p>

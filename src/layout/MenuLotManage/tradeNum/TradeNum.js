@@ -21,18 +21,6 @@ const GetAllItems = gql`
       lastStatusChangeTime
     }
   }
-  # query {
-  #   auctionItems {
-  #     id
-  #     status
-  #     title
-  #     categoryId
-  #     description
-  #     seller {
-  #       id
-  #     }
-  #   }
-  # }
 `
 
 const tradeNum = () => (
@@ -66,10 +54,6 @@ const tradeNum = () => (
         "TransportingToBuyer": 0,
         "Ended": 0
       }
-      // const categoryIdArr = [
-      //   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      //   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      // ]
       const categoryName = getUniqueCategoryName(data.auctionItems)
       const categoryNameObj = {}
       for (let i = 0, len = data.auctionItems.length; i < len; i++) {
@@ -79,9 +63,7 @@ const tradeNum = () => (
         } else {
           categoryNameObj[data.auctionItems[i].category.title] = 1
         }
-        // categoryIdArr[parseInt(data.auctionItems[i].categoryId)]++;
       }
-      console.log(categoryNameObj)
 
       for (let i = 0; i < 10; i++) {
         statusReturnEle.push(
@@ -112,26 +94,5 @@ const tradeNum = () => (
   </Query>
 );
 
-
-// export default tradeNum
-// class tradeNum extends React.Component {
-//   render() {
-//     return (
-//       <div>展示拍品数量
-//         <p>包括提报中的拍品</p>
-//         <p>已上线的拍品</p>
-//         <p>审核中的拍品</p>
-//         <p>待收货的拍品</p>
-//         <p>交易成功拍品</p>
-//         <p>交易失败拍品</p>
-//         <h2>拍品分类统计</h2>
-//         <p>字画</p>
-//         <p>珠宝</p>
-//         <p>箱包</p>
-//         <p>古玩</p>
-//       </div>
-//     )
-//   }
-// }
 
 export default tradeNum

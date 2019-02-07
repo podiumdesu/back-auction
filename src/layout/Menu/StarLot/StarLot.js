@@ -14,7 +14,7 @@ class StarLot extends React.Component {
   render() {
     return (
       <Router >
-        <Layout>
+        <Layout style={{ minHeight: "600px" }}>
           <Header style={{ background: '#fff', padding: 0 }}>
             <Menu
               onClick={this.handleClick}
@@ -41,7 +41,7 @@ class StarLot extends React.Component {
             <Route path={`${this.props.match.path}/all-star-lot`} component={AllStarLot} />
           </Content>
         </Layout>
-      </Router>
+      </Router >
     )
   }
 }

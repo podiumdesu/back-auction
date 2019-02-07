@@ -226,13 +226,13 @@ class DetailedItem extends React.Component {
                     <Carousel autoplay style={{ backgroundColor: "wheat" }}>
                       <div>
                         <p className={detailedStyles['click-to-video-text']} >点击播放视频</p>
-                        <img className={detailedStyles['images']} src={data.idolWishingWell.images[0]} onClick={(e) => this.showVideo(data.idolWishingWell.video, i)} />
+                        <img className={detailedStyles['photos']} src={data.idolWishingWell.images[0]} onClick={(e) => this.showVideo(data.idolWishingWell.video, i)} />
                       </div>
 
                       {data.idolWishingWell.images.map((i) => {
                         return (
                           <div className={detailedStyles["images-ctn"]}>
-                            <img className={detailedStyles['images']} src={i} onClick={(e) => this.showBigPhoto(i)} />
+                            <img className={detailedStyles['photos']} src={i} onClick={(e) => this.showBigPhoto(i)} />
                           </div>
                         )
                       })}

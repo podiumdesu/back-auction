@@ -1,5 +1,5 @@
 export default function (path, method, data, contentType) {
-  console.log(data)
+  //console.log(data)
   return new Promise((resolve, reject) => {
     const ajax = new XMLHttpRequest()
     ajax.open(method, path, true)
@@ -10,14 +10,14 @@ export default function (path, method, data, contentType) {
     }
     // ajax.setRequestHeader(requestHeader.header, requestHeader.type)
     ajax.onreadystatechange = function () {
-      // console.log(this.readyState)
-      // console.log(this.status)
+      // //console.log(this.readyState)
+      // //console.log(this.status)
       if (this.readyState === 4) {
-        console.log("gg " + this.getResponseHeader('x-set-token'))
-        console.log(this)
+        //console.log("gg " + this.getResponseHeader('x-set-token'))
+        //console.log(this)
         if (this.status === 200) {
           let a = JSON.parse(this.responseText)
-          console.log(a)
+          //console.log(a)
           a.token = this.getResponseHeader('x-set-token')
           resolve(a)
         } else {

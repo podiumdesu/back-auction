@@ -1,6 +1,5 @@
 import React from 'react'
 import { DatePicker, Input, Select, Button, Icon, Pagination } from 'antd'
-import { graphql, Query } from 'react-apollo'
 import gql from 'graphql-tag'
 import { getStatusColorOfStarLot, showChineseStatusOfStarLotAccordingString } from '../../utils/commonChange'
 import styles from '../../style/AllLotShow.sass'
@@ -11,17 +10,12 @@ import moment from 'moment';
 import 'moment/locale/zh-cn';
 moment.locale('zh-cn');
 
-import date from 'date-and-time'
+
 import DetailedItem from './DetailedItem'
 import DisplayItem from './DisplayItem'
 const pageDataItemsNum = 15
 
-// const RGBType = new GraphQLEnumType({
-//   name: 'AuctionStatus',
-//   values: {
-//     InFirstCheck: { value: 0 },
-//   }
-// })
+
 const getAllStarLot = gql`
   query idolWishingWells {
     idolWishingWells {
@@ -61,48 +55,6 @@ function foo(obj) {
   `
 }
 
-const getStarLotBySearchIdolName = gql`
-  query idolWishingWells($name: String ){
-    idolWishingWells(
-      where: {
-        name: $name
-      }
-    ) {
-      name
-      images
-      status
-      lastStatusChangeTime
-      id
-      highestBid
-      highestBidUser {
-        name
-        phoneNumber
-      }
-    }
-  }
-`
-const getStarLotBySearchPhoneNumber = gql`
-  query idolWishingWells( $phoneNumber: String){
-    idolWishingWells(
-      where: {
-        highestBidUser: {
-         phoneNumber: $phoneNumber
-        }
-      }
-    ) {
-      name
-      images
-      status
-      lastStatusChangeTime
-      id
-      highestBid
-      highestBidUser {
-        name
-        phoneNumber
-      }
-    }
-  }
-`
 class AllStarLot extends React.Component {
   constructor(props) {
     super(props)
@@ -146,7 +98,7 @@ class AllStarLot extends React.Component {
 
   transferItemId(itemId) {
 
-    //console.log('transferItemId' + itemId)
+    ////console.log('transferItemId' + itemId)
     // 通过 itemID 获取该产品的信息
     // 目前应当是需要
     this.setState({
@@ -154,11 +106,11 @@ class AllStarLot extends React.Component {
     })
   }
   changePageClick(page, pageSize) {
-    //console.log(page, pageSize)
+    ////console.log(page, pageSize)
     const returnEle = []
 
     for (let i = 0, len = (this.state.displayItems.length < page * pageSize) ? this.state.displayItems.length % pageSize : pageSize; i < len; i++) {
-      //console.log(len)
+      ////console.log(len)
       returnEle.push(
         <DisplayItem transferItemId={this.transferItemId.bind(this, this.state.displayItems[i + (page - 1) * pageSize].id)}
           key={this.state.displayItems[i + (page - 1) * pageSize].id}
@@ -167,7 +119,7 @@ class AllStarLot extends React.Component {
           info={this.state.displayItems[i + (page - 1) * pageSize]}
         />)
     }
-    //console.log(returnEle)
+    ////console.log(returnEle)
     this.setState({
       returnEle: returnEle,
       currentPage: page
@@ -182,15 +134,15 @@ class AllStarLot extends React.Component {
     const returnEle = []
     const firstRenderNum = (this.state.displayItems.length < pageDataItemsNum) ? this.state.displayItems.length : pageDataItemsNum
     if (firstRenderNum === 0) {
-      //console.log("ddd")
+      ////console.log("ddd")
       this.setState({
         returnEle: "没有许愿池物品"
       })
     } else {
-      //console.log(this.state.displayItems[0])
+      ////console.log(this.state.displayItems[0])
       for (let i = 0, len = firstRenderNum; i < len; i++) {
-        //console.log('color' + getStatusColorOfStarLot(this.state.displayItems[i].status))
-        //console.log('status' + this.state.displayItems[i].status)
+        ////console.log('color' + getStatusColorOfStarLot(this.state.displayItems[i].status))
+        ////console.log('status' + this.state.displayItems[i].status)
         returnEle.push(
           <DisplayItem transferItemId={this.transferItemId.bind(this, this.state.displayItems[i].id)}
             key={this.state.displayItems[i].id}
@@ -213,15 +165,15 @@ class AllStarLot extends React.Component {
     const returnEle = []
     const firstRenderNum = (this.state.displayItems.length < pageDataItemsNum) ? this.state.displayItems.length : pageDataItemsNum
     if (firstRenderNum === 0) {
-      //console.log("ddd")
+      ////console.log("ddd")
       this.setState({
         returnEle: "没有符合的许愿池物品"
       })
     } else {
-      //console.log(this.state.displayItems[0])
+      ////console.log(this.state.displayItems[0])
       for (let i = 0, len = firstRenderNum; i < len; i++) {
-        //console.log('color' + getStatusColorOfStarLot(this.state.displayItems[i].status))
-        //console.log('status' + this.state.displayItems[i].status)
+        ////console.log('color' + getStatusColorOfStarLot(this.state.displayItems[i].status))
+        ////console.log('status' + this.state.displayItems[i].status)
         returnEle.push(
           <DisplayItem transferItemId={this.transferItemId.bind(this, this.state.displayItems[i].id)}
             key={this.state.displayItems[i].id}
@@ -296,14 +248,14 @@ class AllStarLot extends React.Component {
                   const { data } = await client.query({
                     query: getAllStarLot,
                   })
-                  //console.log(data.idolWishingWells)
+                  ////console.log(data.idolWishingWells)
                   this.getAllItems(data.idolWishingWells)
                   this.clearItemId()
                   let page = this.state.currentPage
                   let pageSize = pageDataItemsNum
                   let returnEle = []
                   for (let i = 0, len = (this.state.displayItems.length < page * pageSize) ? this.state.displayItems.length % pageSize : pageSize; i < len; i++) {
-                    //console.log(len)
+                    ////console.log(len)
                     returnEle.push(
                       <DisplayItem transferItemId={this.transferItemId.bind(this, this.state.displayItems[i + (page - 1) * pageSize].id)}
                         key={this.state.displayItems[i + (page - 1) * pageSize].id}
@@ -313,7 +265,7 @@ class AllStarLot extends React.Component {
                         info={this.state.displayItems[i + (page - 1) * pageSize]}
                       />)
                   }
-                  //console.log(returnEle)
+                  ////console.log(returnEle)
                   this.setState({
                     returnEle: returnEle,
                     phoneNumber: null,

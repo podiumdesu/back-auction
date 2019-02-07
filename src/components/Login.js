@@ -29,6 +29,7 @@ class NormalLoginForm extends React.Component {
             this.props.transferLoginInfo(loginInfo)
           })
           .catch((catchInfo) => {
+            console.log(catchInfo)
             const loginInfo = {
               success: false,
               token: ""

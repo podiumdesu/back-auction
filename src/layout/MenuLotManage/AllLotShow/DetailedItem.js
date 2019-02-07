@@ -63,6 +63,7 @@ const reportDenyMutation = gql`
       data: {
         status: Ended,
         endedReason: FirstCheckFailed,
+        extraStatus: AllComplete,
         endedTime: $time,
         lastStatusChangeTime: $time,
         firstCheckFailReason: $reason

@@ -82,7 +82,7 @@ import UserManage from './layout/Menu/UserManage/index'
 import gql from 'graphql-tag'
 class Main extends React.Component {
   constructor(props) {
-    let temp = getCookie("login") ? JSON.parse(getCookie("login")) : false
+    let temp = getCookie("login") === "true" ? true : false
     super(props)
     this.state = {
       collapsed: false,
@@ -123,7 +123,6 @@ class Main extends React.Component {
     setCookie("token", info.token, 2);
   }
   render() {
-    // let cookieLogin = (getCookie("login") ? JSON.parse(getCookie("login")) : false)
     return (
       <Router>
         {(this.state.login || getCookie("login") === "true") ? (
@@ -180,7 +179,7 @@ class Main extends React.Component {
             /> */}
               {/* <AAA /> */}
 
-              <Content style={{ margin: '24px 16px', padding: 24, background: '#fff', minHeight: "800px", minWidth: "1000px" }}>
+              <Content style={{ margin: '24px 16px', padding: 24, background: '#fff', minHeight: "600px", minWidth: "1000px", overflow: "scroll" }}>
                 {/* <Route exact path="/" component={LotManage} /> */}
                 <Route path="/LotManage" component={LotManage} />
                 <Route path="/StarLot" component={StarLot} />
